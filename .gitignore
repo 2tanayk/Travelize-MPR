@@ -99,3 +99,6 @@ lint/tmp/
 
 # Android Profiling
 *.hprof
+
+#firebase files
+app/google-services.json
