@@ -1,8 +1,9 @@
 <resources>
     <string name="app_name">Travelize</string>
-    
+
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="title_activity_splash_screen">SplashScreenActivity</string>
+    <string name="sign_up_instead">Don\'t have an account?<u>SignUp</u></string>
     <!--
     This string is used for square devices and overridden by hello_world in
     values-round/strings.xml for round devices.
