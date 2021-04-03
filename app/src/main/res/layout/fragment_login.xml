@@ -7,11 +7,11 @@
     tools:context=".authentication.RegisterFragment">
 
     <ImageView
-        android:id="@+id/userIconImgView2"
+        android:id="@+id/emailIconImgView2"
         android:layout_width="35dp"
         android:layout_height="35dp"
         android:layout_marginStart="10dp"
-        android:src="@drawable/ic_user"
+        android:src="@drawable/ic_baseline_email_24"
         app:layout_constraintBottom_toBottomOf="@+id/emailTextInputLayout2"
         app:layout_constraintEnd_toStartOf="@+id/emailTextInputLayout2"
         app:layout_constraintStart_toStartOf="parent"
@@ -26,10 +26,11 @@
         android:layout_marginEnd="20dp"
         app:layout_constraintBottom_toTopOf="@+id/passwordTextInputLayout2"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/userIconImgView2"
+        app:layout_constraintStart_toEndOf="@+id/emailIconImgView2"
         app:layout_constraintTop_toTopOf="parent">
 
         <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/emailEditText2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Email" />
@@ -49,6 +50,7 @@
         app:startIconDrawable="@drawable/ic_padlock">
 
         <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/passwordEditText2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Password"
