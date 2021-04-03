@@ -32,6 +32,10 @@
         android:layout_height="56dp"
         android:layout_marginTop="175dp"
         android:layout_marginEnd="20dp"
+        app:errorEnabled="true"
+        app:errorIconDrawable="@drawable/ic_baseline_error_24"
+        app:helperText="Required"
+        app:helperTextTextColor="@color/red"
         app:layout_constraintBottom_toTopOf="@+id/emailTextInputLayout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/userIconImgView"
@@ -41,7 +45,8 @@
             android:id="@+id/nameEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Full Name" />
+            android:hint="Full Name"
+            android:inputType="textPersonName" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <ImageView
@@ -63,6 +68,10 @@
         android:layout_marginTop="20dp"
         android:layout_marginEnd="20dp"
         android:layout_marginBottom="20dp"
+        app:errorEnabled="true"
+        app:errorIconDrawable="@drawable/ic_baseline_error_24"
+        app:helperText="Required"
+        app:helperTextTextColor="@color/red"
         app:layout_constraintBottom_toTopOf="@+id/passwordTextInputLayout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/emailIconImgView"
@@ -72,7 +81,8 @@
             android:id="@+id/emailEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Email" />
+            android:hint="Email"
+            android:inputType="textEmailAddress" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
@@ -82,6 +92,8 @@
         android:layout_marginStart="20dp"
         android:layout_marginEnd="20dp"
         app:endIconMode="password_toggle"
+        app:helperText="Required"
+        app:helperTextTextColor="@color/red"
         app:layout_constraintBottom_toTopOf="@+id/confirmTextInputLayout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -104,6 +116,8 @@
         android:layout_marginTop="10dp"
         android:layout_marginEnd="20dp"
         app:endIconMode="password_toggle"
+        app:helperText="Required"
+        app:helperTextTextColor="@color/red"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/passwordTextInputLayout"
