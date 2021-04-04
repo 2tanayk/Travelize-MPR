@@ -12,15 +12,20 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
+import androidx.core.content.ContextCompat
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
 import com.google.firebase.auth.FirebaseAuth
 import com.myapp.travelize.R
 import com.myapp.travelize.main.MainHostActivity
+import java.lang.Exception
 
 class LoginFragment : Fragment() {
     private lateinit var auth: FirebaseAuth
     lateinit var passwordEditText: TextInputEditText
     lateinit var emailEditText: TextInputEditText
+    lateinit var resetTextView: TextView
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         auth = FirebaseAuth.getInstance()
@@ -36,6 +41,7 @@ class LoginFragment : Fragment() {
         val signinBtn = view.findViewById<Button>(R.id.signinBtn)
         emailEditText = view.findViewById(R.id.emailEditText2)
         passwordEditText = view.findViewById(R.id.passwordEditText2)
+        resetTextView = view.findViewById(R.id.forgotPasswordTextView)
         Log.e("Checking something:", activity.toString())
 
         signupInsteadBtn.setOnClickListener {
@@ -53,7 +59,37 @@ class LoginFragment : Fragment() {
 
             validate(email, password)
         }
+        resetTextView.setOnClickListener {
+            val email = emailEditText.text.toString().trim()
+            invokeAlertDialog(email)
+        }
         return view
+    }
+
+    private fun invokeAlertDialog(email: String) {
+        val dialog = MaterialAlertDialogBuilder(requireActivity())
+            .setTitle("Reset Password")
+            .setMessage("Do you really want to reset your password?")
+            .setNegativeButton("Cancel") { dialog, which ->
+                // Respond to negative button press
+            }
+            .setPositiveButton("Yes") { dialog, which ->
+                // Respond to positive button press
+                try {
+                    resetPassword(email)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    Toast.makeText(activity, "Wrong email :(", Toast.LENGTH_SHORT).show()
+                }
+
+            }.show()
+
+
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+            .setTextColor(ContextCompat.getColor(requireActivity(), R.color.black))
+        dialog.getButton(AlertDialog.BUTTON_NEGATIVE)
+            .setTextColor(ContextCompat.getColor(requireActivity(), R.color.black))
+
     }
 
     private fun validate(email: String, password: String) {
@@ -86,6 +122,18 @@ class LoginFragment : Fragment() {
                 Toast.makeText(activity, "Authentication failed :(", Toast.LENGTH_SHORT).show()
             }
         }
+    }
+
+    private fun resetPassword(email: String) {
+        auth.sendPasswordResetEmail(email)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    Log.d("Login Fragment", "Email sent!")
+                    Toast.makeText(activity, "Email sent!", Toast.LENGTH_LONG).show()
+                } else {
+                    Toast.makeText(activity, "An error occured :(", Toast.LENGTH_SHORT).show()
+                }
+            }
     }
 
 
