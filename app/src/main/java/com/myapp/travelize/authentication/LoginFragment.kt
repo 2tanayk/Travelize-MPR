@@ -14,10 +14,8 @@ import android.widget.TextView
 import android.widget.Toast
 import com.google.android.material.textfield.TextInputEditText
 import com.google.firebase.auth.FirebaseAuth
-import com.myapp.travelize.MainActivity
 import com.myapp.travelize.R
 import com.myapp.travelize.main.MainHostActivity
-import com.myapp.travelize.onboarding.ViewPagerActivity
 
 class LoginFragment : Fragment() {
     private lateinit var auth: FirebaseAuth

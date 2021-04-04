@@ -14,10 +14,8 @@ import android.widget.Toast
 import android.widget.Toolbar
 import com.google.android.material.textfield.TextInputEditText
 import com.google.firebase.auth.FirebaseAuth
-import com.myapp.travelize.MainActivity
 import com.myapp.travelize.R
 import com.myapp.travelize.main.MainHostActivity
-import com.myapp.travelize.onboarding.ViewPagerActivity
 
 class RegisterFragment : Fragment() {
     private lateinit var auth: FirebaseAuth
@@ -80,6 +78,7 @@ class RegisterFragment : Fragment() {
         }
         if (password.length < 6) {
             passwordEditText.error = "Password too short!"
+            return
         }
         if (!password.equals(confirmPassword)) {
             confirmPasswordEditText.error = "Password doesn't match!"

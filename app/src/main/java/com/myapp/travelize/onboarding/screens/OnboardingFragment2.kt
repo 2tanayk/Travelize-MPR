@@ -10,7 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import androidx.viewpager2.widget.ViewPager2
-import com.myapp.travelize.MainActivity
+import com.myapp.travelize.authentication.MainActivity
 import com.myapp.travelize.R
 import com.myapp.travelize.onboarding.ViewPagerActivity
 

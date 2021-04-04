@@ -1,14 +1,12 @@
-package com.myapp.travelize
+package com.myapp.travelize.authentication
 
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.MenuItem
 import androidx.fragment.app.commit
 import androidx.fragment.app.replace
 import com.google.firebase.auth.FirebaseAuth
-import com.myapp.travelize.authentication.LoginFragment
-import com.myapp.travelize.authentication.RegisterFragment
+import com.myapp.travelize.R
 import com.myapp.travelize.main.MainHostActivity
 
 class MainActivity : AppCompatActivity() {

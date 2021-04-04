@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import com.myapp.travelize.authentication.MainActivity
 import com.myapp.travelize.onboarding.ViewPagerActivity
 
 class SplashScreenActivity : AppCompatActivity() {
