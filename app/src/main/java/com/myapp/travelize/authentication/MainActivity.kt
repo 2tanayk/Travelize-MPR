@@ -3,6 +3,7 @@ package com.myapp.travelize.authentication
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
 import androidx.fragment.app.commit
 import androidx.fragment.app.replace
 import com.google.firebase.auth.FirebaseAuth
@@ -35,5 +36,4 @@ class MainActivity : AppCompatActivity() {
             addToBackStack(null)
         }
     }
-
 }
