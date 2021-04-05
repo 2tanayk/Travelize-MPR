@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".main.createprofile.CreateProfileFragment1">
+
+    <TextView
+        android:id="@+id/genderLabelTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="45dp"
+        android:layout_marginTop="50dp"
+        android:text="Your Gender "
+        android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+        android:textColor="@color/turquoise_blue"
+        app:drawableEndCompat="@drawable/ic_gender"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/dobTextView" />
+
+    <TextView
+        android:id="@+id/basicInfoTextView"
+        android:layout_width="350dp"
+        android:layout_height="53dp"
+        android:layout_marginTop="20dp"
+        android:text="Enter Your Basic Info:"
+        android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+        android:textColor="#000000"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/dobLabelTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="45dp"
+        android:layout_marginTop="100dp"
+        android:text="Your Birthdate "
+        android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+        android:textColor="@color/deep_pink"
+        app:drawableEndCompat="@drawable/ic_cake"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/basicInfoTextView" />
+
+    <TextView
+        android:id="@+id/dobTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="42dp"
+        android:layout_marginTop="30dp"
+        android:text="dd/mm/yyyy"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/dobLabelTextView" />
+
+    <RadioGroup
+        android:id="@+id/genderRadioGroup"
+        android:layout_width="114dp"
+        android:layout_height="143dp"
+        android:layout_marginTop="30dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/genderLabelTextView">
+
+        <RadioButton
+            android:id="@+id/maleRadioBtn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Male" />
+
+        <RadioButton
+            android:id="@+id/femaleRadioBtn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Female" />
+
+        <RadioButton
+            android:id="@+id/otherRadioBtn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Other" />
+    </RadioGroup>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

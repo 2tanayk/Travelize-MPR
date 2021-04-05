@@ -7,7 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import com.myapp.travelize.R
 
-class CreateProfileFragment : Fragment() {
+class CreateProfileFragment1 : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -18,6 +18,10 @@ class CreateProfileFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_create_profile, container, false)
+        return inflater.inflate(R.layout.fragment_create_profile1, container, false)
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
     }
 }
