@@ -7,9 +7,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.RadioButton
-import android.widget.RadioGroup
-import android.widget.TextView
+import android.widget.*
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.myapp.travelize.R
@@ -21,6 +19,7 @@ class CreateProfileFragment1 : Fragment() {
     lateinit var radioGroup: RadioGroup
     lateinit var radioButton: RadioButton
     lateinit var nextBtn: MaterialButton
+    lateinit var autoCompleteTextView: AutoCompleteTextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,8 +40,8 @@ class CreateProfileFragment1 : Fragment() {
         val context = activity as? MainHostActivity
         displayDob = view.findViewById(R.id.dobTextView)
         radioGroup = view.findViewById(R.id.genderRadioGroup)
-        nextBtn=view.findViewById(R.id.continueBtn)
-
+        nextBtn = view.findViewById(R.id.continueBtn)
+        autoCompleteTextView = view.findViewById(R.id.instituteAutoCompleteTextView)
         displayDob.setOnClickListener {
             val calendar = Calendar.getInstance()
             val year = calendar.get(Calendar.YEAR)
@@ -69,6 +68,9 @@ class CreateProfileFragment1 : Fragment() {
             radioButton = view.findViewById(i)
             Log.e("Radio Group", radioButton.text.toString())
         }
+        val items = listOf("Option 1", "Option 2", "Option 3", "Option 4")
+        val adapter = ArrayAdapter(requireActivity(), R.layout.menu_list_item, items)
+        autoCompleteTextView.setAdapter(adapter)
 
         nextBtn.setOnClickListener {
             context?.replaceFragment(CreateProfileFragment2())
