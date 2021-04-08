@@ -10,7 +10,7 @@
         android:id="@+id/genderLabelTextView"
         android:layout_width="wrap_content"
         android:layout_height="45dp"
-        android:layout_marginTop="50dp"
+        android:layout_marginTop="20dp"
         android:text="Your Gender "
         android:textAppearance="@style/TextAppearance.AppCompat.Display1"
         android:textColor="@color/black"
@@ -38,7 +38,7 @@
         android:id="@+id/dobLabelTextView"
         android:layout_width="wrap_content"
         android:layout_height="45dp"
-        android:layout_marginTop="100dp"
+        android:layout_marginTop="20dp"
         android:text="Your Birthdate "
         android:textAppearance="@style/TextAppearance.AppCompat.Display1"
         android:textColor="@color/black"
@@ -51,7 +51,7 @@
     <TextView
         android:id="@+id/dobTextView"
         android:layout_width="wrap_content"
-        android:layout_height="42dp"
+        android:layout_height="wrap_content"
         android:layout_marginTop="30dp"
         android:hint="mm/dd/yyyy"
         android:textAppearance="@style/TextAppearance.AppCompat.Large"
@@ -104,5 +104,37 @@
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent" />
 
+    <TextView
+        android:id="@+id/educationLabelTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="45dp"
+        android:layout_marginTop="20dp"
+        android:text="Your Education "
+        android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+        android:textColor="@color/black"
+        app:drawableEndCompat="@drawable/ic_education"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/genderRadioGroup" />
 
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/instituteMenu"
+        style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="50dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="50dp"
+        android:hint="Institute Name"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/educationLabelTextView">
+
+        <AutoCompleteTextView
+            android:id="@+id/instituteAutoCompleteTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textAutoComplete" />
+    </com.google.android.material.textfield.TextInputLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
