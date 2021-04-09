@@ -42,6 +42,7 @@ class CreateProfileFragment1 : Fragment() {
         radioGroup = view.findViewById(R.id.genderRadioGroup)
         nextBtn = view.findViewById(R.id.continueBtn)
         autoCompleteTextView = view.findViewById(R.id.instituteAutoCompleteTextView)
+
         displayDob.setOnClickListener {
             val calendar = Calendar.getInstance()
             val year = calendar.get(Calendar.YEAR)
