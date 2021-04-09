@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?><!--res/drawable/image.xml-->
+<!--define layer-list-->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!--set image to be shown on cicular image view-->
+    <item android:drawable="@drawable/blankuser" />
+    <item android:drawable="@drawable/circular" />
+</layer-list>
