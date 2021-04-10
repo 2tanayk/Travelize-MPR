@@ -1,7 +1,9 @@
 package com.myapp.travelize.main.createprofile
 
+import android.Manifest
 import android.content.ActivityNotFoundException
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
@@ -14,6 +16,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.myapp.travelize.R
@@ -30,6 +33,14 @@ class CreateProfileFragment3 : androidx.fragment.app.Fragment() {
     val picDirName = "profilePicDir"
     val profilePicFileName = "profilePic.png"
 
+    private val requestReadExternalStoragePermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+            if (isGranted) {
+                Log.e("Permission", "Granted")
+            } else {
+            }
+        }
+
     val getCapturedImage =
         registerForActivityResult(ActivityResultContracts.TakePicture()) {
             if (it) {
@@ -39,6 +50,13 @@ class CreateProfileFragment3 : androidx.fragment.app.Fragment() {
                 Log.e("callback", "failed!")
             }
         }
+    val getGalleryImage = registerForActivityResult(ActivityResultContracts.GetContent()) {
+        try {
+            profilePicImageView.setImageURI(it)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
     lateinit var imagePath: String
     lateinit var uploadBtn: Button
     lateinit var context: MainHostActivity
@@ -77,6 +95,12 @@ class CreateProfileFragment3 : androidx.fragment.app.Fragment() {
                         dispatchTakePictureIntent()
                     } else {
 //                        Log.e("Gallery", "oops clicked!")
+                        if (!hasExternalStoragePermission()) {
+                            requestReadExternalStoragePermissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+                        }
+                        if (hasExternalStoragePermission()) {
+                            getGalleryImage.launch("image/*")
+                        }
                     }
                 }
                 .show()
@@ -128,4 +152,11 @@ class CreateProfileFragment3 : androidx.fragment.app.Fragment() {
             e.printStackTrace()
         }
     }
+
+    fun hasExternalStoragePermission() =
+        ContextCompat.checkSelfPermission(
+            requireActivity(),
+            Manifest.permission.READ_EXTERNAL_STORAGE
+        ) == PackageManager.PERMISSION_GRANTED
+
 }
