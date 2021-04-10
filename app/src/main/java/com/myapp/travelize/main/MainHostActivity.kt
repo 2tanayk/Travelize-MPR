@@ -1,8 +1,12 @@
 package com.myapp.travelize.main
 
+import android.Manifest
+import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
 import androidx.fragment.app.replace
@@ -15,6 +19,10 @@ class MainHostActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main_host)
         supportActionBar?.hide()
 
+        if (ContextCompat.checkSelfPermission(this@MainHostActivity, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this@MainHostActivity,
+                arrayOf(Manifest.permission.CAMERA), 1)
+        }
     }
 
     fun replaceFragment(fragment: Fragment) {
