@@ -102,10 +102,11 @@ class CreateProfileFragment1 : Fragment() {
             instituteName = autoCompleteTextView.text.toString()
             Log.e("ATV itemfinal", instituteName)
             Log.e("Final gender", gender)
-            if (instituteName.isEmpty()) {
-                Toast.makeText(activity, "Please select your institute!", Toast.LENGTH_SHORT).show()
-            } else if (displayDob.text.isEmpty()) {
+
+            if (displayDob.text.isEmpty()) {
                 Toast.makeText(activity, "Please add your DOB!", Toast.LENGTH_SHORT).show()
+            } else if (instituteName.isEmpty()) {
+                Toast.makeText(activity, "Please select your institute!", Toast.LENGTH_SHORT).show()
             } else {
                 context?.replaceFragment(CreateProfileFragment2())
             }

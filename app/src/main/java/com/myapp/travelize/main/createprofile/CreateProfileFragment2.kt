@@ -7,6 +7,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.chip.Chip
@@ -60,9 +61,13 @@ class CreateProfileFragment2 : Fragment() {
         }
 
         nextBtn2.setOnClickListener {
-            context?.replaceFragment(CreateProfileFragment3())
-            Log.e("Selected chip id", passionChipGroup.checkedChipId.toString())
+//            Log.e("Selected chip id", passionChipGroup.checkedChipId.toString())
             Log.e("Selected chips", passionChipGroup.checkedChipIds.toString())
+            if (passionChipGroup.checkedChipIds.size < 5) {
+                Toast.makeText(activity, "Select at least 5 :)", Toast.LENGTH_SHORT).show()
+            } else {
+                context?.replaceFragment(CreateProfileFragment3())
+            }
         }
     }
 }

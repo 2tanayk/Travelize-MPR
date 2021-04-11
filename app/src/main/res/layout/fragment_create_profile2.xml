@@ -26,10 +26,10 @@
         android:layout_marginTop="10dp"
         android:layout_marginEnd="15dp"
         android:gravity="center"
-        android:text="Let everybody know what you are passionate about!"
+        android:text="Let everybody know what you are passionate about! (Select at least 5)"
         android:textAppearance="@style/TextAppearance.AppCompat.Large"
         android:textColor="@android:color/darker_gray"
-        android:textSize="15dp"
+        android:textSize="15sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/passionsLabelTextView" />
