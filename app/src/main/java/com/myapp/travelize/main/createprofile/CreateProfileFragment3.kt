@@ -20,7 +20,9 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.myapp.travelize.R
+import com.myapp.travelize.authentication.MainActivity
 import com.myapp.travelize.main.MainHostActivity
+import com.myapp.travelize.main.MainHostActivity2
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -62,6 +64,7 @@ class CreateProfileFragment3 : androidx.fragment.app.Fragment() {
     lateinit var uploadBtn: Button
     lateinit var context: MainHostActivity
     lateinit var profilePicImageView: ImageView
+    lateinit var nextBtn3: Button
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 //        val builder = VmPolicy.Builder()
@@ -105,6 +108,13 @@ class CreateProfileFragment3 : androidx.fragment.app.Fragment() {
                     }
                 }
                 .show()
+        }
+        nextBtn3 = view.findViewById(R.id.continueBtn3)
+        nextBtn3.setOnClickListener {
+            val intent = Intent(activity, MainHostActivity2::class.java)
+            Log.e("Result of safe cast", context.toString())
+            context.startActivity(intent)
+            context.finish()
         }
     }
 
