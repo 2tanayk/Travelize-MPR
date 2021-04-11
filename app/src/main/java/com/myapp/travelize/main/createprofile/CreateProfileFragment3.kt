@@ -38,6 +38,7 @@ class CreateProfileFragment3 : androidx.fragment.app.Fragment() {
             if (isGranted) {
                 Log.e("Permission", "Granted")
             } else {
+                Log.e("Permission", "Denied")
             }
         }
 
