@@ -25,10 +25,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Travelize">
-        <activity android:name=".main.MainHostActivity2"></activity>
+        <activity android:name=".main.MainHostActivity2" />
         <activity android:name=".main.MainHostActivity" />
         <activity android:name=".onboarding.ViewPagerActivity" />
-        <activity android:name=".SplashScreenActivity">
+        <activity android:name=".SplashScreenActivity" android:theme="@style/SplashTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

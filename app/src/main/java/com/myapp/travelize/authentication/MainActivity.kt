@@ -18,17 +18,25 @@ import com.myapp.travelize.main.MainHostActivity2
 
 class MainActivity : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
+    var isProfileCreated: Boolean = true
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         supportActionBar?.hide()
         auth = FirebaseAuth.getInstance()
+        isProfileCreated =
+            getSharedPreferences("profile", MODE_PRIVATE).getBoolean("profile_created", true)
 
     }
 
     override fun onStart() {
         super.onStart()
         val currentUser = auth.currentUser
+        if (!isProfileCreated) {
+            startActivity(Intent(this, MainHostActivity::class.java))
+            finish()
+            return
+        }
         if (currentUser != null) {
             startActivity(Intent(this, MainHostActivity2::class.java))
             finish()

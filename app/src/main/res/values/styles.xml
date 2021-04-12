@@ -5,4 +5,7 @@
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">50%</item>
     </style>
+    <style name="SplashTheme" parent="Theme.Travelize">
+        <item name="android:windowDisablePreview">true</item>
+    </style>
 </resources>

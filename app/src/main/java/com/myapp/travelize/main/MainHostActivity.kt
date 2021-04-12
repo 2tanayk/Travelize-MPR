@@ -18,15 +18,32 @@ class MainHostActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main_host)
         supportActionBar?.hide()
+        val sharedPref = getSharedPreferences("profile", MODE_PRIVATE)
+        val editor = sharedPref.edit()
+        editor.putBoolean("profile_created", false)
+        editor.apply()
 
-        if (ContextCompat.checkSelfPermission(this@MainHostActivity, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this@MainHostActivity,
-                arrayOf(Manifest.permission.CAMERA), 1)
+        if (ContextCompat.checkSelfPermission(
+                this@MainHostActivity,
+                Manifest.permission.CAMERA
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                this@MainHostActivity,
+                arrayOf(Manifest.permission.CAMERA), 1
+            )
         }
     }
 
     fun replaceFragment(fragment: Fragment) {
         val fm = supportFragmentManager
         fm.beginTransaction().replace(R.id.main_fragment_container, fragment).commit()
+    }
+
+    fun saveInfo() {
+        val sharedPref = getSharedPreferences("profile", MODE_PRIVATE)
+        val editor = sharedPref.edit()
+        editor.putBoolean("profile_created", true)
+        editor.apply()
     }
 }
