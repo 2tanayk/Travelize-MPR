@@ -14,6 +14,7 @@ import androidx.fragment.app.replace
 import com.google.firebase.auth.FirebaseAuth
 import com.myapp.travelize.R
 import com.myapp.travelize.main.MainHostActivity
+import com.myapp.travelize.main.MainHostActivity2
 
 class MainActivity : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
@@ -29,7 +30,7 @@ class MainActivity : AppCompatActivity() {
         super.onStart()
         val currentUser = auth.currentUser
         if (currentUser != null) {
-            startActivity(Intent(this, MainHostActivity::class.java))
+            startActivity(Intent(this, MainHostActivity2::class.java))
             finish()
         }
     }

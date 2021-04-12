@@ -19,6 +19,7 @@ import com.google.android.material.textfield.TextInputEditText
 import com.google.firebase.auth.FirebaseAuth
 import com.myapp.travelize.R
 import com.myapp.travelize.main.MainHostActivity
+import com.myapp.travelize.main.MainHostActivity2
 import java.lang.Exception
 
 class LoginFragment : Fragment() {
@@ -111,7 +112,7 @@ class LoginFragment : Fragment() {
                 Toast.makeText(activity, "Welcome Back!", Toast.LENGTH_SHORT).show()
                 Log.d("Login Fragment", "signInWithEmail:success")
                 val user = auth.currentUser
-                val intent = Intent(activity, MainHostActivity::class.java)
+                val intent = Intent(activity, MainHostActivity2::class.java)
                 val parentActivity = activity as? MainActivity
                 Log.e("Result of safe cast", parentActivity.toString())
                 parentActivity?.startActivity(intent)

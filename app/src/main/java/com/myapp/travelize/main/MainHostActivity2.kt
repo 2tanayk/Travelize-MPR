@@ -2,6 +2,7 @@ package com.myapp.travelize.main
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import com.myapp.travelize.R
 
 class MainHostActivity2 : AppCompatActivity() {
@@ -9,5 +10,6 @@ class MainHostActivity2 : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main_host2)
         supportActionBar?.hide()
+        Log.e("Info","MainHostActivity2")
     }
 }
