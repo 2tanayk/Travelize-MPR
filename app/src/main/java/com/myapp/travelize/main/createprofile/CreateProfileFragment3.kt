@@ -111,9 +111,10 @@ class CreateProfileFragment3 : androidx.fragment.app.Fragment() {
         }
         nextBtn3 = view.findViewById(R.id.continueBtn3)
         nextBtn3.setOnClickListener {
+            Log.e("Result of safe cast", context.toString())
             context.saveInfo()
             val intent = Intent(activity, MainHostActivity2::class.java)
-            Log.e("Result of safe cast", context.toString())
+            intent.putExtra("New User",true)
             context.startActivity(intent)
             context.finish()
         }

@@ -10,6 +10,9 @@ class MainHostActivity2 : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main_host2)
         supportActionBar?.hide()
-        Log.e("Info","MainHostActivity2")
+
+        val i = intent
+        val isNewUser = i.getBooleanExtra("New User", false)
+        Log.e("Info", "MainHostActivity2 and New User Status:$isNewUser")
     }
 }
