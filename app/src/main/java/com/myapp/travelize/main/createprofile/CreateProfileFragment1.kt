@@ -47,13 +47,11 @@ class CreateProfileFragment1 : Fragment() {
         autoCompleteTextView = view.findViewById(R.id.instituteAutoCompleteTextView)
 
         displayDob.setOnClickListener {
-            val calendar = Calendar.getInstance()
-            val year = calendar.get(Calendar.YEAR)
-            val month = calendar.get(Calendar.MONTH)
-            val day = calendar.get(Calendar.DAY_OF_MONTH)
-            val formatter = SimpleDateFormat("yyyy-MM-dd")
-
-
+//            val calendar = Calendar.getInstance()
+//            val year = calendar.get(Calendar.YEAR)
+//            val month = calendar.get(Calendar.MONTH)
+//            val day = calendar.get(Calendar.DAY_OF_MONTH)
+//            val formatter = SimpleDateFormat("yyyy-MM-dd")
             val datePickerDialog = MaterialDatePicker.Builder.datePicker()
                 .setInputMode(MaterialDatePicker.INPUT_MODE_TEXT)
                 .setTitleText("Select Date")
@@ -65,16 +63,16 @@ class CreateProfileFragment1 : Fragment() {
 
             datePickerDialog.addOnPositiveButtonClickListener {
                 Log.e("Date", datePickerDialog.selection.toString())
-                val simpleFormat = SimpleDateFormat("dd/mm/yyyy")
-
+//                val simpleFormat = SimpleDateFormat("dd/mm/yyyy")
                 val date = Date(datePickerDialog.selection!!)
-                val dateString =
-                    "${date.date}/${date.month + 1}/" + date.year.toString().substring(1)
-                val reformatDate = simpleFormat.parse(dateString)
+                val day = date.date.toString()
+                val month = (date.month + 1).toString()
+                val year = date.year.toString()
+                val dateString = formatBirthDate(day, month, year)
                 Log.e("Date", date.date.toString())
                 Log.e("Date", (date.month + 1).toString())
-                Log.e("Date", date.year.toString().substring(1))
-                Log.e("RF Date", reformatDate.toString())
+                Log.e("Date", date.year.toString())
+                Log.e("Formatted Year", dateString)
                 displayDob.text = datePickerDialog.headerText
             }
         }
@@ -111,5 +109,22 @@ class CreateProfileFragment1 : Fragment() {
                 context?.replaceFragment(CreateProfileFragment2())
             }
         }
+    }
+
+    private fun formatBirthDate(day: String, month: String, year: String): String {
+        var dateString = day + "/" + month + "/"
+        var fYear: String = ""
+        if (year.length == 3) {
+            if (year[0] == '1') {
+                fYear = "20${year.substring(1)}"
+            } else {
+                fYear = "21${year.substring(1)}"
+            }
+        } else {
+            fYear = "19${year}"
+        }
+        Log.e("Formatted Year", fYear)
+        dateString += fYear
+        return dateString
     }
 }
