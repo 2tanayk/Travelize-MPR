@@ -8,19 +8,21 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
-import android.provider.MediaStore
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageReference
 import com.myapp.travelize.R
-import com.myapp.travelize.authentication.MainActivity
 import com.myapp.travelize.main.MainHostActivity
 import com.myapp.travelize.main.MainHostActivity2
 import java.io.File
@@ -29,7 +31,13 @@ import java.io.IOException
 
 
 class CreateProfileFragment3 : androidx.fragment.app.Fragment() {
-    var uri: Uri? = null
+    val storage: FirebaseStorage = FirebaseStorage.getInstance()
+    var storageRef = storage.reference
+    var imageRef: StorageReference? =
+        storageRef.child(FirebaseAuth.getInstance().getCurrentUser().getUid() + "/images/")
+
+
+    var picUri: Uri? = null
     val REQUEST_IMAGE_CAPTURE = 1
     val REQUST_IMAGE_GALLERY = 2
     val picDirName = "profilePicDir"
@@ -47,8 +55,8 @@ class CreateProfileFragment3 : androidx.fragment.app.Fragment() {
     val getCapturedImage =
         registerForActivityResult(ActivityResultContracts.TakePicture()) {
             if (it) {
-                Log.e("callback", "image uri saved! " + uri.toString())
-                profilePicImageView.setImageURI(uri)
+                Log.e("callback", "image uri saved! " + picUri.toString())
+                profilePicImageView.setImageURI(picUri)
             } else {
                 Log.e("callback", "failed!")
             }
@@ -56,10 +64,13 @@ class CreateProfileFragment3 : androidx.fragment.app.Fragment() {
     val getGalleryImage = registerForActivityResult(ActivityResultContracts.GetContent()) {
         try {
             profilePicImageView.setImageURI(it)
+            picUri = it
         } catch (e: Exception) {
             e.printStackTrace()
         }
     }
+    lateinit var firebaseProfilePicUrl: String
+    lateinit var profilePicFile: File
     lateinit var imagePath: String
     lateinit var uploadBtn: Button
     lateinit var context: MainHostActivity
@@ -109,14 +120,39 @@ class CreateProfileFragment3 : androidx.fragment.app.Fragment() {
                 }
                 .show()
         }
+
         nextBtn3 = view.findViewById(R.id.continueBtn3)
         nextBtn3.setOnClickListener {
             Log.e("Result of safe cast", context.toString())
             context.saveInfo()
-            val intent = Intent(activity, MainHostActivity2::class.java)
-            intent.putExtra("New User",true)
-            context.startActivity(intent)
-            context.finish()
+
+            val profilePicRef = imageRef?.child("profilePic.png")
+
+            if (picUri != null) {
+                profilePicRef
+                    ?.putFile(picUri!!)
+                    ?.addOnSuccessListener {
+                        Toast.makeText(activity, "Profile picture added!", Toast.LENGTH_SHORT).show()
+                        profilePicRef
+                            .downloadUrl
+                            .addOnSuccessListener {
+                                Log.e("Firebase", "Download url saved!")
+                                firebaseProfilePicUrl = it.toString()
+                                context.saveSharedPrefs(firebaseProfilePicUrl)
+                                val intent = Intent(activity, MainHostActivity2::class.java)
+                                intent.putExtra("New User", true)
+                                context.startActivity(intent)
+                                context.finish()
+                            }.addOnFailureListener {
+                                Log.e("Firebase", "Download url error :(")
+                                it.printStackTrace()
+                            }
+                    }
+                    ?.addOnFailureListener {
+                        it.printStackTrace()
+                        Toast.makeText(activity, "Error,profile picture couldn't be added", Toast.LENGTH_SHORT).show()
+                    }
+            }//null check
         }
     }
 
@@ -125,7 +161,7 @@ class CreateProfileFragment3 : androidx.fragment.app.Fragment() {
 //        val contextWrapper = ContextWrapper(context.applicationContext)
 //        val directory = contextWrapper.getDir(picDirName, Context.MODE_PRIVATE)
 //        val directory = context.getDir(picDirName, Context.MODE_PRIVATE)
-        val profilePicFile = File(context.filesDir, profilePicFileName)
+        profilePicFile = File(context.filesDir, profilePicFileName)
 
         val bitmap = BitmapFactory.decodeResource(resources, R.drawable.blankuser)
 
@@ -148,7 +184,7 @@ class CreateProfileFragment3 : androidx.fragment.app.Fragment() {
         Log.e("Profile pic path", imagePath)
 //        uri = Uri.fromFile(profilePicFile)
 
-        uri = FileProvider.getUriForFile(
+        picUri = FileProvider.getUriForFile(
             context,
             "com.myapp.travelize",
             profilePicFile
@@ -156,10 +192,9 @@ class CreateProfileFragment3 : androidx.fragment.app.Fragment() {
     }
 
     private fun dispatchTakePictureIntent() {
-        val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-
+//        val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
         try {
-            getCapturedImage.launch(uri)
+            getCapturedImage.launch(picUri)
         } catch (e: ActivityNotFoundException) {
             // display error state to the user
             e.printStackTrace()

@@ -84,17 +84,18 @@ class RegisterFragment : Fragment() {
             confirmPasswordEditText.error = "Password doesn't match!"
             return
         }
-        signup(email, password)
+        signup(email, password,name)
     }
 
-    private fun signup(email: String, password: String) {
+    private fun signup(email: String, password: String, name: String) {
         auth.createUserWithEmailAndPassword(email, password).addOnCompleteListener {
             if (it.isSuccessful) {
                 // Sign in success, update UI with the signed-in user's information
+                val parentActivity = activity as? MainActivity
+                parentActivity?.saveSharedPrefs(name,email)
                 Log.d("Registration", "createUserWithEmail:success")
                 Toast.makeText(activity, "Welcome!", Toast.LENGTH_SHORT).show()
                 val intent = Intent(activity, MainHostActivity::class.java)
-                val parentActivity = activity as? MainActivity
                 Log.e("Result of safe cast", parentActivity.toString())
                 parentActivity?.startActivity(intent)
                 parentActivity?.finish()

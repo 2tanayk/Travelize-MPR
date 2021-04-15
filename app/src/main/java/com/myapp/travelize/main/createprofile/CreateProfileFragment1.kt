@@ -40,6 +40,7 @@ class CreateProfileFragment1 : Fragment() {
         val context = activity as? MainHostActivity
         var instituteName = ""
         var gender = "Male"
+        var dateString: String = ""
 
         displayDob = view.findViewById(R.id.dobTextView)
         radioGroup = view.findViewById(R.id.genderRadioGroup)
@@ -68,7 +69,7 @@ class CreateProfileFragment1 : Fragment() {
                 val day = date.date.toString()
                 val month = (date.month + 1).toString()
                 val year = date.year.toString()
-                val dateString = formatBirthDate(day, month, year)
+                dateString = formatBirthDate(day, month, year)
                 Log.e("Date", date.date.toString())
                 Log.e("Date", (date.month + 1).toString())
                 Log.e("Date", date.year.toString())
@@ -98,14 +99,16 @@ class CreateProfileFragment1 : Fragment() {
 
         nextBtn.setOnClickListener {
             instituteName = autoCompleteTextView.text.toString()
-            Log.e("ATV itemfinal", instituteName)
+            Log.e("Birth Date", dateString)
             Log.e("Final gender", gender)
+            Log.e("ATV itemfinal", instituteName)
 
             if (displayDob.text.isEmpty()) {
                 Toast.makeText(activity, "Please add your DOB!", Toast.LENGTH_SHORT).show()
             } else if (instituteName.isEmpty()) {
                 Toast.makeText(activity, "Please select your institute!", Toast.LENGTH_SHORT).show()
             } else {
+                context?.saveSharedPrefs(dateString, gender, instituteName)
                 context?.replaceFragment(CreateProfileFragment2())
             }
         }
