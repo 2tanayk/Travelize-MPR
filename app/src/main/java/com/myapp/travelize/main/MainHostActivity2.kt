@@ -1,8 +1,12 @@
 package com.myapp.travelize.main
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.myapp.travelize.R
@@ -17,6 +21,14 @@ import com.myapp.travelize.main.MainHostActivity.Companion.USER_PASSIONS
 import com.myapp.travelize.models.User
 
 class MainHostActivity2 : AppCompatActivity() {
+    private val requestAccessCoarseLocationPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+            if (isGranted) {
+                Log.e("Location Permission", "Granted")
+            } else {
+                Log.e("Location Permission", "Denied")
+            }
+        }
     val auth = FirebaseAuth.getInstance()
     val db = FirebaseFirestore.getInstance()
     val collectionRef = db.collection("Users")
@@ -31,6 +43,9 @@ class MainHostActivity2 : AppCompatActivity() {
         Log.e("Info", "MainHostActivity2 and New User Status:$isNewUser")
         if (isNewUser) {
             createUserProfile()
+        }
+        if (!hasAccessCoarseLocationPermission()) {
+            requestAccessCoarseLocationPermissionLauncher.launch(Manifest.permission.ACCESS_COARSE_LOCATION)
         }
     }
 
@@ -70,4 +85,10 @@ class MainHostActivity2 : AppCompatActivity() {
                 Log.e("MainHostActivity2", "Failure to write document")
             }
     }
+
+    fun hasAccessCoarseLocationPermission() =
+        ContextCompat.checkSelfPermission(
+            this,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
 }
