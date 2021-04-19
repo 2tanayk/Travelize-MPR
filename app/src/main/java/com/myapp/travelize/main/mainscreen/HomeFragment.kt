@@ -1,33 +1,33 @@
 package com.myapp.travelize.main.mainscreen
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import com.myapp.travelize.Keys
 import com.myapp.travelize.R
+import com.myapp.travelize.interfaces.JsonPlaceHolderApi
+import com.myapp.travelize.models.Places
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
 
-/**
- * A simple [Fragment] subclass.
- * Use the [HomeFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class HomeFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
+    val base_url = "https://maps.googleapis.com/maps/api/"
+    val retrofit: Retrofit = Retrofit.Builder()
+        .baseUrl(base_url)
+        .addConverterFactory(GsonConverterFactory.create())
+        .build()
+    lateinit var jsonPlaceHolderApi: JsonPlaceHolderApi
+//    val jsonPlaceHolderApi: JsonPlaceHolderApi? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
     }
 
     override fun onCreateView(
@@ -35,26 +35,51 @@ class HomeFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_home, container, false)
+        val view = inflater.inflate(R.layout.fragment_home, container, false)
+        Log.e("HomeFragment", "created")
+        return view
     }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment HomeFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            HomeFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        jsonPlaceHolderApi = retrofit.create(JsonPlaceHolderApi::class.java)
+        val call = jsonPlaceHolderApi.doPlaces("-33.8670522,151.1957362", "1500", "restaurant", "cruise", Keys.apiKey())
+
+        call.enqueue(object : Callback<Places.Root?> {
+            override fun onResponse(call: Call<Places.Root?>?, response: Response<Places.Root?>?) {
+                if (response != null) {
+                    if (!response.isSuccessful()) {
+                        Log.e("Respnse","failed:(")
+                        Log.e("Respnse",response.toString())
+                        return
+                    }
+                }else{
+                    Log.e("Response","null")
                 }
+                val body:Places.Root? = response!!.body()
+                val apiResults: MutableList<Places.Result>? = body!!.getResults()
+
+                if (apiResults != null) {
+                    for(result in apiResults) {
+                        Log.e("Name:",result.name)
+                        Log.e("Address",result.vicinity)
+                        Log.e("Open", result.openingHour.open.toString())
+                        Log.e("Rating", result.rating.toString())
+                        Log.e("Photo Ref.",result.photos[0].photoReference)
+                        Log.e("Place Id",result.placeID)
+                    }
+                }
+
+                Log.i("Response", body.toString())
+
+
             }
+
+            override fun onFailure(call: Call<Places.Root?>?, t: Throwable?) {
+                t!!.printStackTrace()
+            }
+        })
+
     }
 }

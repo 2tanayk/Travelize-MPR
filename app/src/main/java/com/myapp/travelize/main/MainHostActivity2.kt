@@ -7,14 +7,8 @@ import android.util.Log
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import com.google.android.gms.common.api.ApiException
-import com.google.android.libraries.places.api.Places
-import com.google.android.libraries.places.api.model.Place
-import com.google.android.libraries.places.api.model.PlaceLikelihood
-import com.google.android.libraries.places.api.net.FindCurrentPlaceRequest
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.myapp.travelize.Keys
 import com.myapp.travelize.R
 import com.myapp.travelize.authentication.MainActivity.Companion.FIRESTORE_SHARED_PREF
 import com.myapp.travelize.authentication.MainActivity.Companion.USER_EMAIL
@@ -53,7 +47,6 @@ class MainHostActivity2 : AppCompatActivity() {
         if (!hasAccessFineLocationPermission()) {
             requestAccessFineLocationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
         }
-//        testAPI()
     }
 
     private fun createUserProfile() {
@@ -98,42 +91,4 @@ class MainHostActivity2 : AppCompatActivity() {
             this,
             Manifest.permission.ACCESS_FINE_LOCATION
         ) == PackageManager.PERMISSION_GRANTED
-
-    //testing the API
-//    private fun testAPI() {
-//        Places.initialize(applicationContext, Keys.apiKey())
-//        // Create a new PlacesClient instance
-//        val placesClient = Places.createClient(this)
-//        val placeFields: List<Place.Field> = listOf(Place.Field.NAME)
-//        val request: FindCurrentPlaceRequest = FindCurrentPlaceRequest.newInstance(placeFields)
-//
-//        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) ==
-//            PackageManager.PERMISSION_GRANTED
-//        ) {
-//
-//            val placeResponse = placesClient.findCurrentPlace(request)
-//            placeResponse.addOnCompleteListener { task ->
-//                if (task.isSuccessful) {
-//                    val response = task.result
-//                    for (placeLikelihood: PlaceLikelihood in response?.placeLikelihoods
-//                        ?: emptyList()) {
-//                        Log.i(
-//                            "api",
-//                            "Place '${placeLikelihood.place.name}' has likelihood: ${placeLikelihood.likelihood}"
-//                        )
-//                    }
-//                } else {
-//                    val exception = task.exception
-//                    if (exception is ApiException) {
-//                        exception.printStackTrace()
-//                        Log.e("api", exception.toString())
-//                    }
-//                }
-//            }
-//        } else {
-//            // A local method to request required permissions;
-//            // See https://developer.android.com/training/permissions/requesting
-//
-//        }
-//    }
 }
