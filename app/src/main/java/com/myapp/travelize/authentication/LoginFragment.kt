@@ -27,6 +27,7 @@ class LoginFragment : Fragment() {
     lateinit var passwordEditText: TextInputEditText
     lateinit var emailEditText: TextInputEditText
     lateinit var resetTextView: TextView
+    lateinit var  signinBtn: Button
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         auth = FirebaseAuth.getInstance()
@@ -37,9 +38,13 @@ class LoginFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        val view = inflater.inflate(R.layout.fragment_login, container, false)
+        return inflater.inflate(R.layout.fragment_login, container, false)
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         val signupInsteadBtn = view.findViewById<TextView>(R.id.signupTextView)
-        val signinBtn = view.findViewById<Button>(R.id.signinBtn)
+        signinBtn = view.findViewById<Button>(R.id.signinBtn)
         emailEditText = view.findViewById(R.id.emailEditText2)
         passwordEditText = view.findViewById(R.id.passwordEditText2)
         resetTextView = view.findViewById(R.id.forgotPasswordTextView)
@@ -55,17 +60,22 @@ class LoginFragment : Fragment() {
 //            Log.e("Checking Register form", password.text.toString())
 //            Log.e("Checking Register form", confirmPassword.text.toString())
 
-            val email = emailEditText.text.toString().trim()
-            val password = passwordEditText.text.toString().trim()
+            val email =getText( emailEditText)
+            val password = getText(passwordEditText)
 
-            validate(email, password)
+           if( validate(email, password) ){
+               signin(email, password)
+           }
         }
         resetTextView.setOnClickListener {
-            val email = emailEditText.text.toString().trim()
+            val email = getText( emailEditText)
             invokeAlertDialog(email)
         }
-        return view
     }
+
+    // get text from edit text
+    fun getText( editText : TextInputEditText ) : String =
+        editText.text.toString().trim()
 
     private fun invokeAlertDialog(email: String) {
         val dialog = MaterialAlertDialogBuilder(requireActivity())
@@ -93,16 +103,16 @@ class LoginFragment : Fragment() {
 
     }
 
-    private fun validate(email: String, password: String) {
+    private fun validate(email: String, password: String) : Boolean {
         if (TextUtils.isEmpty(email) || TextUtils.isEmpty(password)) {
             Toast.makeText(activity, "Some Field is Empty!", Toast.LENGTH_SHORT).show()
-            return
+            return false
         }
         if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
             emailEditText.error = "Invalid email address!"
-            return
+            return false
         }
-        signin(email, password)
+        return true
     }
 
     private fun signin(email: String, password: String) {
