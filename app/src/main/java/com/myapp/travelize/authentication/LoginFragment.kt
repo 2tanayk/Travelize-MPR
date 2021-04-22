@@ -2,7 +2,9 @@ package com.myapp.travelize.authentication
 
 import android.content.Intent
 import android.os.Bundle
+import android.text.Editable
 import android.text.TextUtils
+import android.text.TextWatcher
 import android.util.Log
 import android.util.Patterns
 import androidx.fragment.app.Fragment
@@ -50,9 +52,16 @@ class LoginFragment : Fragment() {
         resetTextView = view.findViewById(R.id.forgotPasswordTextView)
         Log.e("Checking something:", activity.toString())
 
+        //disablesignin button
+        signinBtn.isEnabled = false
+
         signupInsteadBtn.setOnClickListener {
             (activity as? MainActivity)?.signupInstead()
         }
+
+        //set text change listener
+        emailEditText.addTextChangedListener( textWatcher)
+        passwordEditText.addTextChangedListener( textWatcher)
 
         signinBtn.setOnClickListener {
 //            Log.e("Checking Register form", name.text.toString())
@@ -147,5 +156,22 @@ class LoginFragment : Fragment() {
             }
     }
 
+    //textwatcher
+    private val textWatcher  = object : TextWatcher {
+        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            //
+            val email = getText(emailEditText)
+            val password = getText(passwordEditText)
+
+            // eabled when all texts are filled
+            signinBtn.isEnabled =
+                (  !TextUtils.isEmpty(email) && !TextUtils.isEmpty(  password )  )
+        }
+
+        override fun afterTextChanged(s: Editable?) {  }
+
+    }
 
 }
