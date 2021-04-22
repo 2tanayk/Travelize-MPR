@@ -10,6 +10,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.EditText
 import android.widget.Toast
 import android.widget.Toolbar
 import com.google.android.material.textfield.TextInputEditText
@@ -34,7 +35,13 @@ class RegisterFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        val view = inflater.inflate(R.layout.fragment_register, container, false)
+        return inflater.inflate(R.layout.fragment_register, container, false)
+
+    }//onCreateView ends
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
         val toolbar = view.findViewById<Toolbar>(R.id.backToolBar)
         val signupBtn = view.findViewById<Button>(R.id.signupBtn)
         auth = FirebaseAuth.getInstance()
@@ -54,38 +61,46 @@ class RegisterFragment : Fragment() {
 //            Log.e("Checking Register form", email.text.toString())
 //            Log.e("Checking Register form", password.text.toString())
 //            Log.e("Checking Register form", confirmPassword.text.toString())
-            val name = nameEditText.text.toString().trim()
-            val email = emailEditText.text.toString().trim()
-            val password = passwordEditText.text.toString().trim()
-            val confirmPassword = confirmPasswordEditText.text.toString().trim()
+            val name = getText( nameEditText )
+            val email = getText(emailEditText)
+            val password = getText( passwordEditText  )
+            val confirmPassword = getText( confirmPasswordEditText)
 
-            validate(name, email, password, confirmPassword)
+            if( validate(name, email, password, confirmPassword) ){
+                signup(email, password, name)
+            }
         }
-        return view
-    }//onCreateView ends
+    }
 
-    private fun validate(name: String, email: String, password: String, confirmPassword: String) {
+    // get text from edit text
+    fun getText( editText : TextInputEditText ) : String =
+                editText.text.toString().trim()
+
+    // make function independent
+    private fun validate(name: String, email: String, password: String, confirmPassword: String) : Boolean {
         if (TextUtils.isEmpty(name) || TextUtils.isEmpty(email) || TextUtils.isEmpty(password) || TextUtils.isEmpty(
                 confirmPassword
             )
         ) {
             Toast.makeText(activity, "Some Field is Empty!", Toast.LENGTH_SHORT).show()
-            return
+            return false
         }
         if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
             emailEditText.error = "Invalid email address!"
-            return
+            return false
         }
         if (password.length < 6) {
             passwordEditText.error = "Password too short!"
-            return
+            return false
         }
         if (!password.equals(confirmPassword)) {
             confirmPasswordEditText.error = "Password doesn't match!"
-            return
+            return false
         }
-        signup(email, password,name)
+
+        return true
     }
+
 
     private fun signup(email: String, password: String, name: String) {
         auth.createUserWithEmailAndPassword(email, password).addOnCompleteListener {
