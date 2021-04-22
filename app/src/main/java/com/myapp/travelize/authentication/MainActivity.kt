@@ -1,14 +1,9 @@
 package com.myapp.travelize.authentication
 
-import android.Manifest
 import android.content.Intent
-import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.View
 import android.widget.Toast
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.commit
 import androidx.fragment.app.replace
 import com.google.firebase.auth.FirebaseAuth
@@ -17,6 +12,12 @@ import com.myapp.travelize.main.MainHostActivity
 import com.myapp.travelize.main.MainHostActivity2
 
 class MainActivity : AppCompatActivity() {
+    companion object {
+        const val USER_NAME: String = "name"
+        const val USER_EMAIL: String = "email"
+        const val FIRESTORE_SHARED_PREF: String = "userDocument"
+    }
+
     private lateinit var auth: FirebaseAuth
     var isProfileCreated: Boolean = true
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -50,5 +51,14 @@ class MainActivity : AppCompatActivity() {
             setReorderingAllowed(true)
             addToBackStack(null)
         }
+    }
+
+    fun saveSharedPrefs(name: String, email: String) {
+        val sharedPref = getSharedPreferences(FIRESTORE_SHARED_PREF, MODE_PRIVATE)
+        val editor = sharedPref.edit()
+        editor.putString(USER_NAME, name)
+        editor.putString(USER_EMAIL, email)
+        editor.apply()
+        Toast.makeText(this, "name and email saved!", Toast.LENGTH_SHORT).show()
     }
 }
