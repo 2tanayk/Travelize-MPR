@@ -62,6 +62,13 @@ class RegisterFragment : Fragment() {
         toolbar.setNavigationOnClickListener {
             activity?.supportFragmentManager?.popBackStack()
         }
+
+        //set text change listener
+        nameEditText.addTextChangedListener( textWatcher)
+        emailEditText.addTextChangedListener( textWatcher)
+        passwordEditText.addTextChangedListener( textWatcher)
+        confirmPasswordEditText.addTextChangedListener( textWatcher)
+
         signupBtn.setOnClickListener {
 //            Log.e("Checking Register form", name.text.toString())
 //            Log.e("Checking Register form", email.text.toString())
@@ -120,9 +127,7 @@ class RegisterFragment : Fragment() {
 
             // eabled when all texts are filled
             signupBtn.isEnabled =
-                ( !TextUtils.isEmpty(name) || !TextUtils.isEmpty(email) || !TextUtils.isEmpty(
-                    password
-                ) || !TextUtils.isEmpty(confirmPassword) )
+                ( !TextUtils.isEmpty(name) && !TextUtils.isEmpty(email)  && !TextUtils.isEmpty( password) &&  !TextUtils.isEmpty(confirmPassword) )
         }
 
         override fun afterTextChanged(s: Editable?) {  }
