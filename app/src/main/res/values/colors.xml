@@ -10,4 +10,6 @@
     <color name="red">#FF0000</color>
     <color name="deep_pink">#FF1493</color>
     <color name="turquoise_blue">#00FFeF</color>
+    <color name="horizontal_rule_gray">#c0c0c0</color>
+    <color name="rating_golden_yellow">#ffe234</color>
 </resources>

@@ -1,4 +1,4 @@
-package com.myapp.travelize.models;
+package com.myapp.travelize.models.networking;
 
 
 import com.google.gson.annotations.SerializedName;
@@ -6,7 +6,7 @@ import com.google.gson.annotations.SerializedName;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Places {
+public class PlaceResponse {
     public class Root {
         @SerializedName("html_attributions")
         public List<String> attributions = new ArrayList<>();
