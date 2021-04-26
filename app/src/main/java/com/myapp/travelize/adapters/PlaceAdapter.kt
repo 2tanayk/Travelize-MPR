@@ -1,18 +1,14 @@
 package com.myapp.travelize.adapters
 
-import android.graphics.Typeface
 import android.text.SpannableString
 import android.text.SpannableStringBuilder
 import android.text.style.ImageSpan
-import android.text.style.StyleSpan
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.LinearLayout
-import android.widget.RatingBar
-import android.widget.TextView
+import android.widget.*
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.text.bold
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -50,18 +46,15 @@ class PlaceAdapter(val listener: OnItemClickListener) :
             .fallback(R.drawable.brokenplaceholder).centerInside()
             .into(holder.placeImgView)
 //        Log.e("Image ref",place.photoRef.toString())
-        val address=" ${place.address}\n"
-        val imageSpan=ImageSpan(holder.addressTxtView.context,R.drawable.ic_location)
-        val spanAddress=SpannableString(address)
-        spanAddress.setSpan(imageSpan,0,1,0)
-        holder.addressTxtView.text =spanAddress
+        val address = " ${place.address}"
+        holder.addressTxtView.text = address
         holder.phonenoTxtView.text = if (place.phoneNo != null) {
             "  ${place.phoneNo}"
         } else {
-            ""
+            "Not found"
         }
         //holder.workhrTxtView.text = workingHrs.substring(1, workingHrs.length - 1)
-        val spanStr = SpannableStringBuilder().bold { append("  Working Hours:") }
+        val spanStr = SpannableStringBuilder().bold { append("Working Hours:") }
         holder.workhrTxtView.text = spanStr
         val workingHrs = place.workingHours
         for (workingHr in workingHrs) {
@@ -82,7 +75,7 @@ class PlaceAdapter(val listener: OnItemClickListener) :
         val placeImgView: ImageView = view.findViewById(R.id.place_image_view)
         val nameTxtView: TextView = view.findViewById(R.id.place_title_text_view)
         val appendBtn: ImageView = view.findViewById(R.id.append_image_btn)
-        val expandLL: LinearLayout = view.findViewById(R.id.expandable_linear_layout)
+        val expandLL: ConstraintLayout = view.findViewById(R.id.expandable_layout)
         val addressTxtView: TextView = view.findViewById(R.id.place_address_text_view)
         val phonenoTxtView: TextView = view.findViewById(R.id.place_no_text_view)
         val workhrTxtView: TextView = view.findViewById(R.id.place_workhours_text_view)

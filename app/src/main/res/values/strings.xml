@@ -9,5 +9,5 @@
     values-round/strings.xml for round devices.
     -->
     <string name="hello_world">Hello Square World!</string>
-    <string name="working_hours_title">\u0020,\u0020<b>Working Hours:</b></string>
+    <string name="working_hours_title"><b>Working Hours:</b></string>
 </resources>
