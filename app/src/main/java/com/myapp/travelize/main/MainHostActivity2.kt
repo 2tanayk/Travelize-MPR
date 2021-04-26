@@ -47,6 +47,7 @@ class MainHostActivity2 : AppCompatActivity() {
         if (!hasAccessFineLocationPermission()) {
             requestAccessFineLocationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
         }
+
     }
 
     private fun createUserProfile() {
