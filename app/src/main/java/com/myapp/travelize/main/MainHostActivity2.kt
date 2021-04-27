@@ -10,6 +10,7 @@ import androidx.core.content.ContextCompat
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.myapp.travelize.R
+import com.myapp.travelize.authentication.MainActivity
 import com.myapp.travelize.authentication.MainActivity.Companion.FIRESTORE_SHARED_PREF
 import com.myapp.travelize.authentication.MainActivity.Companion.USER_EMAIL
 import com.myapp.travelize.authentication.MainActivity.Companion.USER_NAME
@@ -21,6 +22,18 @@ import com.myapp.travelize.main.MainHostActivity.Companion.USER_PASSIONS
 import com.myapp.travelize.models.User
 
 class MainHostActivity2 : AppCompatActivity() {
+    companion object{
+        const val USER_LAT="latitude"
+        const val USER_LONG="longitude"
+        const val TYPE_RESTAURANT="restaurant"
+        const val KEYWORD_RESTAURANT="food"
+        const val TYPE_MALL="shopping_mall"
+        const val KEYWORD_MALL="shop"
+        const val TYPE_THEATER="movie_theater"
+        const val KEYWORD_THEATER="movie"
+        const val TYPE_PARK="park"
+        const val KEYWORD_PARK="flower"
+    }
     private val requestAccessFineLocationPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
             if (isGranted) {
@@ -92,4 +105,13 @@ class MainHostActivity2 : AppCompatActivity() {
             this,
             Manifest.permission.ACCESS_FINE_LOCATION
         ) == PackageManager.PERMISSION_GRANTED
+
+    fun saveUserLocation(latitude: Double, longitude: Double) {
+        val sharedPref = getSharedPreferences(FIRESTORE_SHARED_PREF, MODE_PRIVATE)
+        val editor = sharedPref.edit()
+        editor.putString(USER_LAT,latitude.toString())
+        editor.putString(USER_LONG,longitude.toString())
+        editor.apply()
+        Log.e("All prefs", sharedPref.all.toString())
+    }
 }
