@@ -84,6 +84,12 @@ class PlaceAdapter(val listener: OnItemClickListener) :
 
         init {
             view.setOnClickListener(this)
+            appendBtn.setOnClickListener {
+                val position: Int = adapterPosition
+                if (position != RecyclerView.NO_POSITION) {
+                    listener.onPlaceRegister(position)
+                }
+            }
         }
 
         override fun onClick(v: View?) {
@@ -96,6 +102,7 @@ class PlaceAdapter(val listener: OnItemClickListener) :
 
     interface OnItemClickListener {
         fun onItemClick(position: Int)
+        fun onPlaceRegister(position: Int)
     }
 
 

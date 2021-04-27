@@ -14,8 +14,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.myapp.travelize.Keys
 import com.myapp.travelize.R
 import com.myapp.travelize.adapters.PlaceAdapter
@@ -40,6 +44,7 @@ import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.lang.Exception
 
 
 class HomeFragment : Fragment(), PlaceAdapter.OnItemClickListener {
@@ -298,7 +303,24 @@ class HomeFragment : Fragment(), PlaceAdapter.OnItemClickListener {
             Log.e("callAPI", "some parameter is null")
         }
     }
+    override fun onPlaceRegister(position: Int) {
+        Log.e("append btn","clicked!")
+        val dialog = MaterialAlertDialogBuilder(requireActivity())
+            .setTitle("Confirmation")
+            .setMessage("Do you want company for this destination?")
+            .setNegativeButton("No") { dialog, which ->
+                // Respond to negative button press
+            }
+            .setPositiveButton("Yes") { dialog, which ->
 
+            }.show()
+
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+            .setTextColor(ContextCompat.getColor(requireActivity(), R.color.black))
+        dialog.getButton(AlertDialog.BUTTON_NEGATIVE)
+            .setTextColor(ContextCompat.getColor(requireActivity(), R.color.black))
+
+    }
 //    private fun createTypeList() {
 //        typeList.add(PlaceType(R.drawable.ic_restaurant, "Restaurants"))
 //        typeList.add(PlaceType(R.drawable.ic_mall, "Malls"))
