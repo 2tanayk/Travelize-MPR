@@ -93,12 +93,7 @@ class HomeFragment : Fragment(), PlaceAdapter.OnItemClickListener {
         val userLocation = getUserGeographicCoordinates()
         if (userLocation != null) {
             context.saveUserLocation(userLocation.latitude, userLocation.longitude)
-            callAPI(
-                userLocation.latitude,
-                userLocation.longitude,
-                TYPE_RESTAURANT,
-                KEYWORD_RESTAURANT
-            )
+            callAPI(userLocation.latitude, userLocation.longitude, TYPE_RESTAURANT, KEYWORD_RESTAURANT)
         } else {
             Log.e("location", "is null")
         }
@@ -149,10 +144,7 @@ class HomeFragment : Fragment(), PlaceAdapter.OnItemClickListener {
         )
 
         call.enqueue(object : Callback<PlaceResponse.Root?> {
-            override fun onResponse(
-                call: Call<PlaceResponse.Root?>?,
-                response: Response<PlaceResponse.Root?>?
-            ) {
+            override fun onResponse(call: Call<PlaceResponse.Root?>?, response: Response<PlaceResponse.Root?>?) {
                 if (response != null) {
                     if (!response.isSuccessful()) {
                         Log.e("Response", "failed:(")
@@ -204,10 +196,7 @@ class HomeFragment : Fragment(), PlaceAdapter.OnItemClickListener {
                     Keys.apiKey()
                 )
                 subcall.enqueue(object : Callback<DetailResponse.Root?> {
-                    override fun onResponse(
-                        call: Call<DetailResponse.Root?>,
-                        response: Response<DetailResponse.Root?>
-                    ) {
+                    override fun onResponse(call: Call<DetailResponse.Root?>, response: Response<DetailResponse.Root?>) {
                         if (!response.isSuccessful()) {
                             Log.e("subcall Response", "failed:(")
                             Log.e("subcall Response", response.toString())
@@ -319,7 +308,6 @@ class HomeFragment : Fragment(), PlaceAdapter.OnItemClickListener {
             .setTextColor(ContextCompat.getColor(requireActivity(), R.color.black))
         dialog.getButton(AlertDialog.BUTTON_NEGATIVE)
             .setTextColor(ContextCompat.getColor(requireActivity(), R.color.black))
-
     }
 //    private fun createTypeList() {
 //        typeList.add(PlaceType(R.drawable.ic_restaurant, "Restaurants"))
