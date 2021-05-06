@@ -31,6 +31,7 @@ import com.myapp.travelize.main.MainHostActivity2.Companion.KEYWORD_PARK
 import com.myapp.travelize.main.MainHostActivity2.Companion.KEYWORD_RESTAURANT
 import com.myapp.travelize.main.MainHostActivity2.Companion.KEYWORD_THEATER
 import com.myapp.travelize.main.MainHostActivity2.Companion.TYPE_MALL
+import com.myapp.travelize.main.MainHostActivity2.Companion.TYPE_PARK
 import com.myapp.travelize.main.MainHostActivity2.Companion.TYPE_RESTAURANT
 import com.myapp.travelize.main.MainHostActivity2.Companion.TYPE_THEATER
 import com.myapp.travelize.main.MainHostActivity2.Companion.USER_LAT
@@ -272,7 +273,8 @@ class HomeFragment : Fragment(), PlaceAdapter.OnItemClickListener {
                     keyword = KEYWORD_THEATER
                 }
                 3 -> {
-                    type = KEYWORD_PARK
+                    Log.e("when","in park")
+                    type = TYPE_PARK
                     keyword = KEYWORD_PARK
                 }
             }
