@@ -18,15 +18,12 @@ class ChatHostFragment : Fragment(), ChatAdapter.OnItemClickListener {
     lateinit var chatsAdapter: ChatAdapter
     lateinit var chatsRecyclerView: RecyclerView
     val chatList = mutableListOf<Chat>()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_chat_host, container, false)
         return view
     }
@@ -37,14 +34,13 @@ class ChatHostFragment : Fragment(), ChatAdapter.OnItemClickListener {
         chatsAdapter = ChatAdapter(this)
         chatsRecyclerView.setHasFixedSize(true)
         chatsRecyclerView.adapter = chatsAdapter
+//        chatList.add(Chat("", "Place1", "", "hello", "3", "11:40"))
+//        chatList.add(Chat("", "Place2", "", "hello", "3", "11:40"))
+//        chatList.add(Chat("", "Place3", "", "hello", "3", "11:40"))
+//        chatList.add(Chat("", "Place4", "", "hello", "3", "11:40"))
+//        chatList.add(Chat("", "Place5", "", "hello", "3", "11:40"))
 
-        chatList.add(Chat("", "Place1", "", "hello", "3", "11:40"))
-        chatList.add(Chat("", "Place2", "", "hello", "3", "11:40"))
-        chatList.add(Chat("", "Place3", "", "hello", "3", "11:40"))
-        chatList.add(Chat("", "Place4", "", "hello", "3", "11:40"))
-        chatList.add(Chat("", "Place5", "", "hello", "3", "11:40"))
-
-        chatsAdapter.submitList(chatList)
+//        chatsAdapter.submitList(chatList)
     }
 
     override fun onItemClick(position: Int) {

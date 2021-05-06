@@ -8,7 +8,6 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.google.android.material.imageview.ShapeableImageView
-import com.myapp.travelize.Keys
 import com.myapp.travelize.R
 import com.myapp.travelize.adapters.utils.ChatDiffUtil
 import com.myapp.travelize.models.Chat
@@ -25,15 +24,15 @@ class ChatAdapter(val listener: OnItemClickListener) :
     override fun onBindViewHolder(holder: ChatViewHolder, position: Int) {
         val chat = getItem(position)
         Glide.with(holder.groupIconImg.getContext())
-            .load(R.drawable.blankuser)
+            .load(chat.imageUrl)
             .placeholder(R.drawable.blankplaceholder)
             .error(R.drawable.brokenplaceholder).centerInside()
             .fallback(R.drawable.brokenplaceholder).centerInside()
             .into(holder.groupIconImg)
-        holder.groupNameTxt.text=chat.name
-        holder.unreadMsgTxt.text=chat.lastUnreadMsg
-        holder.unreadCtTxt.text=chat.unreadMsgCt
-        holder.timestampTxt.text=chat.lastUnreadMsgTimestamp
+        holder.groupNameTxt.text = chat.name
+        holder.unreadMsgTxt.text = chat.lastUnreadMsg
+        holder.unreadCtTxt.text = chat.unreadMsgCt
+        holder.timestampTxt.text = chat.lastUnreadMsgTimestamp
     }
 
     inner class ChatViewHolder(private val view: View) : RecyclerView.ViewHolder(view),
