@@ -2,6 +2,7 @@ package com.myapp.travelize.main.mainscreen
 
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Context.LOCATION_SERVICE
 import android.content.Context.MODE_PRIVATE
 import android.location.Location
@@ -67,20 +68,22 @@ class HomeFragment : Fragment(), PlaceAdapter.OnItemClickListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Log.e("HomeFragment onCreate","called!")
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
+    @SuppressLint("LongLogTag")
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_home, container, false)
+        Log.e("HomeFragment onCreateView","called!")
         Log.e("HomeFragment", "created")
         return view
     }
 
+    @SuppressLint("LongLogTag")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        Log.e("HomeFragment onViewCreated","called!")
         context = (activity as? MainHostActivity2)!!
         placesRecyclerView = view.findViewById(R.id.places_recycler_view)
 //        placeTypeMenu = view.findViewById(R.id.select_type_exposed_menu)
@@ -311,6 +314,48 @@ class HomeFragment : Fragment(), PlaceAdapter.OnItemClickListener {
         dialog.getButton(AlertDialog.BUTTON_NEGATIVE)
             .setTextColor(ContextCompat.getColor(requireActivity(), R.color.black))
     }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        Log.e("onAttach","called!")
+    }
+
+    override fun onStart() {
+        super.onStart()
+        Log.e("HomeFragment onStart","called!")
+    }
+
+    override fun onResume() {
+        super.onResume()
+        Log.e("HomeFragment onResume","called!")
+    }
+
+    override fun onPause() {
+        super.onPause()
+        Log.e("HomeFragment onPause","called!")
+    }
+
+    override fun onStop() {
+        super.onStop()
+        Log.e("HomeFragment onStop","called!")
+    }
+
+    @SuppressLint("LongLogTag")
+    override fun onDestroyView() {
+        super.onDestroyView()
+        Log.e("HomeFragment onDestroyView","called!")
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.e("HomeFragment onDestroy","called!")
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        Log.e("HomeFragment onDetach","called!")
+    }
+
 //    private fun createTypeList() {
 //        typeList.add(PlaceType(R.drawable.ic_restaurant, "Restaurants"))
 //        typeList.add(PlaceType(R.drawable.ic_mall, "Malls"))
