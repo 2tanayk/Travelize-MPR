@@ -4,11 +4,13 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
+import android.util.SparseArray
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.auth.FirebaseAuth
@@ -50,6 +52,8 @@ class MainHostActivity2 : AppCompatActivity(),FragmentActionListener {
         const val CHAT_FRAGMENT_TAG = "chat"
         const val CHAT_GROUP_KEY="chat_group_key"
         const val CHAT_BACKSTACK="chat_backstack"
+        const val SAVED_STATE_CONTAINER_KEY = "ContainerKey"
+        const val SAVED_STATE_CURRENT_TAB_KEY = "CurrentTabKey"
     }
 
     private val requestAccessFineLocationPermissionLauncher =
@@ -63,6 +67,8 @@ class MainHostActivity2 : AppCompatActivity(),FragmentActionListener {
     val auth = FirebaseAuth.getInstance()
     val db = FirebaseFirestore.getInstance()
     val collectionRef = db.collection("Users")
+    private var savedStateSparseArray = SparseArray<Fragment.SavedState>()
+    private var currentSelectItemId = R.id.item_home
     lateinit var fragmentManager: FragmentManager
     lateinit var bottomNavigationView: BottomNavigationView
     val docRef = collectionRef.document(auth.getCurrentUser().getUid())
@@ -84,69 +90,101 @@ class MainHostActivity2 : AppCompatActivity(),FragmentActionListener {
         }
 
         bottomNavigationView.setOnNavigationItemSelectedListener {
-            val homeFragment = fragmentManager.findFragmentByTag(HOME_FRAGMENT_TAG) as? HomeFragment
-            Log.e("homeFragment check", homeFragment.toString())
-            val chatFragment= fragmentManager.findFragmentByTag(CHAT_HOST_FRAGMENT_TAG) as? ChatHostFragment
-            Log.e("chatFragment check", chatFragment.toString())
-            val profileFragment = fragmentManager.findFragmentByTag(PROFILE_FRAGMENT_TAG) as? ProfileFragment
-            Log.e("profileFragment check", profileFragment.toString())
-
+//            val homeFragment = fragmentManager.findFragmentByTag(HOME_FRAGMENT_TAG) as? HomeFragment
+//            Log.e("homeFragment check", homeFragment.toString())
+//            val chatFragment= fragmentManager.findFragmentByTag(CHAT_HOST_FRAGMENT_TAG) as? ChatHostFragment
+//            Log.e("chatFragment check", chatFragment.toString())
+//            val profileFragment = fragmentManager.findFragmentByTag(PROFILE_FRAGMENT_TAG) as? ProfileFragment
+//            Log.e("profileFragment check", profileFragment.toString())
             when (it.itemId) {
                 R.id.item_home -> {
+                    Log.e("check menu items", it.toString())
                     Log.e("HomeItem", "clicked")
-                    if (homeFragment != null && !homeFragment.isVisible) {
-                        fragmentManager.beginTransaction().show(homeFragment).commit()
-                    }
-                    if (chatFragment != null && chatFragment.isVisible) {
-                        fragmentManager.beginTransaction().hide(chatFragment).commit()
-                    }
-                    if (profileFragment != null && profileFragment.isVisible) {
-                        fragmentManager.beginTransaction().hide(profileFragment).commit()
+                    if(fragmentManager.findFragmentById(R.id.main_fragment_container2) !is HomeFragment)
+                    {
+                        saveFragmentState(it.itemId)
+                        val homeFragment=HomeFragment()
+                        val savedState=savedStateSparseArray.get(it.itemId,null)
+                        if(savedState!=null) {
+                            Log.e("SavedState","is not null")
+                            homeFragment.setInitialSavedState(savedState)
+                            val tempBundle=Bundle()
+                            tempBundle.putBoolean("State Retained",true)
+                            homeFragment.arguments=tempBundle
+                        }
+                            fragmentManager.beginTransaction()
+                                .replace(R.id.main_fragment_container2,homeFragment, HOME_FRAGMENT_TAG)
+                                .commit()
+                    }else{
+                        Log.e("HomeFragment","already in the container")
                     }
                 }
 
-                R.id.item_chat -> {
-                    Log.e("ChatItem", "clicked")
-                    if (chatFragment != null && !chatFragment.isVisible) {
-                        fragmentManager.beginTransaction().show(chatFragment).commit()
-                    } else if(chatFragment==null) {
+                R.id.item_chat_host -> {
+                    Log.e("ChatHostItem", "clicked")
+                    if(fragmentManager.findFragmentById(R.id.main_fragment_container2) !is ChatHostFragment)
+                    {
+                        saveFragmentState(it.itemId)
                         val chatHostFragment=ChatHostFragment()
                         chatHostFragment.fragmentActionListener=this
-                        fragmentManager
-                            .beginTransaction()
-                            .add(R.id.main_fragment_container2,chatHostFragment, CHAT_HOST_FRAGMENT_TAG)
+                        val savedState=savedStateSparseArray.get(it.itemId,null)
+                        if(savedState!=null) {
+                            Log.e("SavedState","is not null")
+                            chatHostFragment.setInitialSavedState(savedState)
+                            val tempBundle=Bundle()
+                            tempBundle.putBoolean("State Retained",true)
+                            chatHostFragment.arguments=tempBundle
+                        }
+                        fragmentManager.beginTransaction()
+                            .replace(R.id.main_fragment_container2,chatHostFragment, CHAT_HOST_FRAGMENT_TAG)
                             .commit()
-                        Log.e("Info", "new chat fragment created!")
-                    }
-                    if (homeFragment != null && homeFragment.isVisible) {
-                        fragmentManager.beginTransaction().hide(homeFragment).commit()
-                    }
-                    if (profileFragment != null && profileFragment.isVisible) {
-                        fragmentManager.beginTransaction().hide(profileFragment).commit()
+                    }else{
+                        Log.e("ChatHostFragment","already in the container")
                     }
                 }
 
                 R.id.item_profile -> {
                     Log.e("ProfileItem", "clicked")
-                    if (profileFragment != null && !profileFragment.isVisible) {
-                        fragmentManager.beginTransaction().show(profileFragment).commit()
-                    } else if(profileFragment==null) {
-                        val profFragment=ProfileFragment()
-                        fragmentManager.beginTransaction()
-                            .add(R.id.main_fragment_container2, profFragment, PROFILE_FRAGMENT_TAG)
+                    if(fragmentManager.findFragmentById(R.id.main_fragment_container2) !is ProfileFragment)
+                    {
+                        saveFragmentState(it.itemId)
+                        val profileFragment=ProfileFragment()
+                        val savedState=savedStateSparseArray.get(it.itemId,null)
+                        if(savedState!=null) {
+                            Log.e("SavedState","is not null")
+                            profileFragment.setInitialSavedState(savedState)
+                            val tempBundle=Bundle()
+                            tempBundle.putBoolean("State Retained",true)
+                            profileFragment.arguments=tempBundle
+                        }
+                        fragmentManager
+                            .beginTransaction()
+                            .replace(R.id.main_fragment_container2,profileFragment, PROFILE_FRAGMENT_TAG)
                             .commit()
-                        Log.e("Info", "new profile fragment created!")
+                    }else{
+                        Log.e("ProfileFragment","already in the container")
                     }
-                    if (homeFragment != null && homeFragment.isVisible) {
-                        fragmentManager.beginTransaction().hide(homeFragment).commit()
-                    }
-                    if (chatFragment != null && chatFragment.isVisible) {
-                        fragmentManager.beginTransaction().hide(chatFragment).commit()
-                    }
+                }
+                else->{
+                    Log.e("InvalidItem","clicked:(")
                 }
             }
             true
         }
+    }
+
+    fun saveFragmentState(actionId:Int) {
+        val currentFragment = fragmentManager.findFragmentById(R.id.main_fragment_container2)
+        if (currentFragment != null) {
+            savedStateSparseArray.put(currentSelectItemId, fragmentManager.saveFragmentInstanceState(currentFragment))
+            Log.e("State saved for","${currentSelectItemId}")
+        }
+        currentSelectItemId=actionId
+    }
+
+    fun restoreFragmentState(actionId: Int)
+    {
+
     }
 
     private fun createUserProfile() {
@@ -226,6 +264,7 @@ class MainHostActivity2 : AppCompatActivity(),FragmentActionListener {
     override fun onBackPressed() {
         if(this::fragmentManager.isInitialized && fragmentManager.findFragmentById(R.id.main_fragment_container2) is ChatFragment)
         {
+            Log.e("onBack","special condition called!")
             bottomNavigationView.visibility= VISIBLE
         }
         super.onBackPressed()
