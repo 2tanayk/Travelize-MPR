@@ -64,14 +64,14 @@ class MainHostActivity2 : AppCompatActivity(),FragmentActionListener {
                 Log.e("Location Permission", "Denied")
             }
         }
-    val auth = FirebaseAuth.getInstance()
+    val firebaseAuth = FirebaseAuth.getInstance()
     val db = FirebaseFirestore.getInstance()
     val collectionRef = db.collection("Users")
     private var savedStateSparseArray = SparseArray<Fragment.SavedState>()
     private var currentSelectItemId = R.id.item_home
     lateinit var fragmentManager: FragmentManager
     lateinit var bottomNavigationView: BottomNavigationView
-    val docRef = collectionRef.document(auth.getCurrentUser().getUid())
+    val docRef = collectionRef.document(firebaseAuth.getCurrentUser().getUid())
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main_host2)
@@ -85,9 +85,7 @@ class MainHostActivity2 : AppCompatActivity(),FragmentActionListener {
         if (isNewUser) {
             createUserProfile()
         }
-        if (!hasAccessFineLocationPermission()) {
-            requestAccessFineLocationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
-        }
+        askFineLocationPermission()
 
         bottomNavigationView.setOnNavigationItemSelectedListener {
 //            val homeFragment = fragmentManager.findFragmentByTag(HOME_FRAGMENT_TAG) as? HomeFragment
@@ -170,6 +168,12 @@ class MainHostActivity2 : AppCompatActivity(),FragmentActionListener {
                 }
             }
             true
+        }
+    }
+
+    fun askFineLocationPermission() {
+        if (!hasAccessFineLocationPermission()) {
+            requestAccessFineLocationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
         }
     }
 
