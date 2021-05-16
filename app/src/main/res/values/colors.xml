@@ -12,4 +12,5 @@
     <color name="turquoise_blue">#00FFeF</color>
     <color name="horizontal_rule_gray">#c0c0c0</color>
     <color name="rating_golden_yellow">#ffe234</color>
+    <color name="msg_white">#F9F9F9</color>
 </resources>

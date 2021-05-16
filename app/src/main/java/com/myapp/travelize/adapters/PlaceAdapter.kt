@@ -25,7 +25,6 @@ class PlaceAdapter(val listener: OnItemClickListener) :
         val placeItemView = LayoutInflater
             .from(parent.context)
             .inflate(R.layout.place_item, parent, false)
-
         return PlaceViewHolder(placeItemView)
     }
 
@@ -104,6 +103,4 @@ class PlaceAdapter(val listener: OnItemClickListener) :
         fun onItemClick(position: Int)
         fun onPlaceRegister(position: Int)
     }
-
-
 }

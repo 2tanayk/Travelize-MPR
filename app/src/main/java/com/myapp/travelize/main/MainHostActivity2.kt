@@ -37,7 +37,7 @@ class MainHostActivity2 : AppCompatActivity() {
         const val TYPE_THEATER = "movie_theater"
         const val KEYWORD_THEATER = "movie"
         const val TYPE_PARK = "park"
-        const val KEYWORD_PARK = "flower"
+        const val KEYWORD_PARK = "park"
         const val HOME_FRAGMENT_TAG = "home"
         const val CHAT_FRAGMENT_TAG = "chat"
         const val PROFILE_FRAGMENT_TAG = "profile"
