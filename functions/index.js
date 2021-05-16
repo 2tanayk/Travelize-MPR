@@ -55,12 +55,14 @@ exports.addToChatGroup = functions.region('asia-east2').firestore
 
         const createdDocId = snap.id
         const passionArray = data.passions
+        const memberName = data.name
         const parameters = context.params
         const placesCollectionPath = `Places/${parameters.placen}/${parameters.users}`
         let maxIntersectionSize = 0
         let bestDocumentPath = ''
         let bestIntersection = []
         let bestMembersArray = []
+        let bestMemberNamesArray = []
 
         console.log('passionsArray', passionArray)
         console.log('placesCollectionPath', placesCollectionPath)
@@ -72,6 +74,7 @@ exports.addToChatGroup = functions.region('asia-east2').firestore
                 let snapshots = []
                 let placeName = ""
                 let placeImgUrl = ""
+                let placeId = ""
                 await transaction.get(chatsCollectionRef)
                     .then(function(value) {
                             console.log('value', value.docs)
@@ -85,6 +88,7 @@ exports.addToChatGroup = functions.region('asia-east2').firestore
 
                 await transaction.get(placeDocumentRef).then(function(value) {
                         docSnap = value.data()
+                        placeId = value.id
                         placeName = docSnap.name
                         placeImgUrl = docSnap.url
                     },
@@ -96,7 +100,7 @@ exports.addToChatGroup = functions.region('asia-east2').firestore
                 //console.log('snapshot size', snapshots.size)
                 if (snapshots.length === 0) {
                     const newChatDocumentRef = chatsCollectionRef.doc();
-                    transaction.set(newChatDocumentRef, { passionIntersection: passionArray, members: [createdDocId], name: placeName, url: placeImgUrl })
+                    transaction.set(newChatDocumentRef, { passionIntersection: passionArray, members: [createdDocId], name: placeName, url: placeImgUrl, memberNames: [memberName], id: placeId })
                     return Promise.resolve(`new chat doc created,path- ${newChatDocumentRef.path}`)
                 } else {
                     console.log('Retrieved snapshots size', snapshots.length)
@@ -108,23 +112,26 @@ exports.addToChatGroup = functions.region('asia-east2').firestore
                         let tempIntersectionSize = tempIntersection.length
                         let tempDocumentPath = snapshot.ref.path
                         let tempMembersArray = tempData.members
+                        let tempMemberNamesArray = tempData.memberNames
 
                         if (tempIntersectionSize > maxIntersectionSize) {
                             maxIntersectionSize = tempIntersectionSize
                             bestDocumentPath = tempDocumentPath
                             bestIntersection = tempIntersection
                             bestMembersArray = tempMembersArray
+                            bestMemberNamesArray = tempMemberNamesArray
                         }
                     })
 
                     if (maxIntersectionSize == 0) {
                         const newChatDocumentRef = chatsCollectionRef.doc();
-                        transaction.set(newChatDocumentRef, { passionIntersection: passionArray, members: [createdDocId], name: placeName, url: placeImgUrl })
+                        transaction.set(newChatDocumentRef, { passionIntersection: passionArray, members: [createdDocId], name: placeName, url: placeImgUrl, memberNames: [memberName], id: placeId })
                         return Promise.resolve(`no match found,new chat doc created,path- ${newChatDocumentRef}`)
                     } else {
                         const existingChatDocumentRef = db.doc(bestDocumentPath)
                         bestMembersArray.push(createdDocId)
-                        transaction.set(existingChatDocumentRef, { passionIntersection: bestIntersection, members: bestMembersArray, name: placeName, url: placeImgUrl })
+                        bestMemberNamesArray.push(memberName)
+                        transaction.set(existingChatDocumentRef, { passionIntersection: bestIntersection, members: bestMembersArray, name: placeName, url: placeImgUrl, memberNames: bestMemberNamesArray, id: placeId })
                         return Promise.resolve(`match found,path- ${existingChatDocumentRef.path}`)
                     }
                 }

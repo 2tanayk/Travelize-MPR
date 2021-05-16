@@ -5,7 +5,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="5dp"
+    android:paddingStart="10dp"
+    android:paddingTop="10dp"
+    android:paddingEnd="10dp"
+    android:paddingBottom="10dp"
     tools:context=".main.mainscreen.ChatHostFragment">
 
     <androidx.recyclerview.widget.RecyclerView
@@ -13,5 +16,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
+        android:padding="5dp"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 </FrameLayout>

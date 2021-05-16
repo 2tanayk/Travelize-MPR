@@ -25,6 +25,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.myapp.travelize.Keys
 import com.myapp.travelize.R
 import com.myapp.travelize.adapters.PlaceAdapter
+import com.myapp.travelize.authentication.MainActivity
 import com.myapp.travelize.authentication.MainActivity.Companion.FIRESTORE_SHARED_PREF
 import com.myapp.travelize.interfaces.JsonPlaceHolderApi
 import com.myapp.travelize.main.MainHostActivity
@@ -360,14 +361,16 @@ class HomeFragment : Fragment(), PlaceAdapter.OnItemClickListener {
     fun fetchUserPassions(id: String?) {
         val sharedPref = context.getSharedPreferences(FIRESTORE_SHARED_PREF, MODE_PRIVATE)
         val tempSet: Set<String> = HashSet<String>(sharedPref.getStringSet(MainHostActivity.USER_PASSIONS, HashSet<String>()))
+        var name: String? =sharedPref.getString(MainActivity.USER_NAME, null)
         var passionsList: List<String> = tempSet.toList()
-        if(passionsList.isEmpty())
+        if(passionsList.isEmpty() || name==null)
         {
             db.collection("Users").document(firebaseAuth.currentUser.uid).get().addOnSuccessListener {
                 if (it != null) {
                     Log.e("user doc snapshot", "DocumentSnapshot data: ${it.data}")
                     passionsList= it["passions"] as List<String>
-                    addUserToChatGroup(passionsList,id)
+                    name=it.getString("name")
+                    addUserToChatGroup(passionsList,name,id)
                 } else {
                     Log.e("user doc snapshot", "No such document")
                 }
@@ -375,16 +378,17 @@ class HomeFragment : Fragment(), PlaceAdapter.OnItemClickListener {
                 Log.e("user doc snapshot","error :( ${it.printStackTrace()}")
             }
         }else{
-            addUserToChatGroup(passionsList,id)
+            addUserToChatGroup(passionsList,name,id)
         }
     }
 
-    fun addUserToChatGroup(passionsList: List<String>, id: String?) {
+    fun addUserToChatGroup(passionsList: List<String>,name: String?, id: String?) {
         val userSubCollectionRef = db.collection("Places")
             .document("${id}")
             .collection("users")
         val userPlaceRegisterData = hashMapOf(
-            "passions" to passionsList
+            "passions" to passionsList,
+            "name" to name
         )
         userSubCollectionRef.document(firebaseAuth.currentUser.uid).set(userPlaceRegisterData).addOnSuccessListener {
             Log.e("passionList","added to place users collection")
