@@ -12,7 +12,7 @@ class ChatDiffUtil : DiffUtil.ItemCallback<Chat>() {
         return oldItem.name.equals(newItem.name) &&
                 oldItem.lastUnreadMsg.equals(newItem.lastUnreadMsg) &&
                 oldItem.lastUnreadMsgTimestamp.equals(newItem.lastUnreadMsgTimestamp) &&
-                oldItem.imageUrl.equals(newItem.imageUrl) &&
+                oldItem.url.equals(newItem.url) &&
                 oldItem.unreadMsgCt.equals(newItem.unreadMsgCt)
 
     }

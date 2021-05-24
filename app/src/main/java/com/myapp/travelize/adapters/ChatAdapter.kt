@@ -4,16 +4,18 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.firebase.ui.firestore.FirestoreRecyclerAdapter
+import com.firebase.ui.firestore.FirestoreRecyclerOptions
 import com.google.android.material.imageview.ShapeableImageView
+import com.google.firebase.firestore.DocumentSnapshot
+import com.myapp.travelize.Keys
 import com.myapp.travelize.R
-import com.myapp.travelize.adapters.utils.ChatDiffUtil
 import com.myapp.travelize.models.Chat
 
-class ChatAdapter(val listener: OnItemClickListener) :
-    ListAdapter<Chat, ChatAdapter.ChatViewHolder>(ChatDiffUtil()) {
+class ChatAdapter(val listener: OnItemClickListener, options: FirestoreRecyclerOptions<Chat>) :
+    FirestoreRecyclerAdapter<Chat, ChatAdapter.ChatViewHolder>(options) {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ChatViewHolder {
         val chatItemView = LayoutInflater
             .from(parent.context)
@@ -21,18 +23,17 @@ class ChatAdapter(val listener: OnItemClickListener) :
         return ChatViewHolder(chatItemView)
     }
 
-    override fun onBindViewHolder(holder: ChatViewHolder, position: Int) {
-        val chat = getItem(position)
+    override fun onBindViewHolder(holder: ChatViewHolder, position: Int,model: Chat) {
         Glide.with(holder.groupIconImg.getContext())
-            .load(chat.imageUrl)
+            .load("https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${model.url.toString()}&key=${Keys.apiKey()}")
             .placeholder(R.drawable.blankplaceholder)
-            .error(R.drawable.brokenplaceholder).centerInside()
-            .fallback(R.drawable.brokenplaceholder).centerInside()
+            .error(R.drawable.brokenplaceholder)
+            .fallback(R.drawable.brokenplaceholder)
             .into(holder.groupIconImg)
-        holder.groupNameTxt.text = chat.name
-        holder.unreadMsgTxt.text = chat.lastUnreadMsg
-        holder.unreadCtTxt.text = chat.unreadMsgCt
-        holder.timestampTxt.text = chat.lastUnreadMsgTimestamp
+        holder.groupNameTxt.text = model.name
+        holder.unreadMsgTxt.text = model.lastUnreadMsg ?: ""
+        holder.unreadCtTxt.text = model.unreadMsgCt ?: ""
+        holder.timestampTxt.text = model.lastUnreadMsgTimestamp ?: ""
     }
 
     inner class ChatViewHolder(private val view: View) : RecyclerView.ViewHolder(view),
@@ -50,12 +51,12 @@ class ChatAdapter(val listener: OnItemClickListener) :
         override fun onClick(v: View?) {
             val position: Int = adapterPosition
             if (position != RecyclerView.NO_POSITION) {
-                listener.onItemClick(position)
+                listener.onItemClick(position, snapshots.getSnapshot(position))
             }
         }
     }
 
     interface OnItemClickListener {
-        fun onItemClick(position: Int)
+        fun onItemClick(position: Int, snapshot: DocumentSnapshot)
     }
 }

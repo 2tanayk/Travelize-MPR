@@ -100,3 +100,17 @@ lint/tmp/
 #firebase files
 app/google-services.json
 app/src/main/cpp/native-lib.cpp
+
+# Firebase config specific
+.runtimeconfig.json
+.firebaserc
+functions/lib
+
+# Optional eslint cache
+.eslintcache
+
+#security rules
+firestore.rules
+
+firestore-debug.log
+ui-debug.log

@@ -2,6 +2,7 @@ package com.myapp.travelize.main.mainscreen
 
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Context.LOCATION_SERVICE
 import android.content.Context.MODE_PRIVATE
 import android.location.Location
@@ -14,17 +15,20 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
-import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import com.myapp.travelize.Keys
 import com.myapp.travelize.R
 import com.myapp.travelize.adapters.PlaceAdapter
+import com.myapp.travelize.authentication.MainActivity
 import com.myapp.travelize.authentication.MainActivity.Companion.FIRESTORE_SHARED_PREF
 import com.myapp.travelize.interfaces.JsonPlaceHolderApi
+import com.myapp.travelize.main.MainHostActivity
 import com.myapp.travelize.main.MainHostActivity2
 import com.myapp.travelize.main.MainHostActivity2.Companion.KEYWORD_MALL
 import com.myapp.travelize.main.MainHostActivity2.Companion.KEYWORD_PARK
@@ -45,59 +49,94 @@ import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import java.lang.Exception
 
 
 class HomeFragment : Fragment(), PlaceAdapter.OnItemClickListener {
+
+//    companion object {
+//        const val TAG = "fragment_tag"
+//        const val PLACE_LIST = "place_list"
+//        const val DROPDOWN_MENU_ITEM = "dropdown_menu_item"
+//        fun newInstance(tag: String, placesList:MutableList<Place>,dropDownMenuItem:Int): Fragment {
+//            val fragment = HomeFragment()
+//            val bundle = Bundle()
+//            bundle.putString(TAG, tag)
+//            bundle.putParcelableArrayList(PLACE_LIST,ArrayList<Parcelable>(placesList))
+//            bundle.putInt(DROPDOWN_MENU_ITEM, dropDownMenuItem)
+//            fragment.arguments = bundle
+//            return fragment
+//        }
+//    }
+
     lateinit var mLocationManager: LocationManager
     lateinit var jsonPlaceHolderApi: JsonPlaceHolderApi
     lateinit var placesAdapter: PlaceAdapter
     lateinit var placesRecyclerView: RecyclerView
     lateinit var typeAutoCompleteTextView: AutoCompleteTextView
+    lateinit var context: MainHostActivity2
 
-    val placesList = mutableListOf<Place>()
-    val typeList = mutableListOf<PlaceType>()
+    val placesList: MutableList<Place> = mutableListOf()
+    val typeList: MutableList<PlaceType> = mutableListOf()
     val base_url = "https://maps.googleapis.com/maps/api/"
-
+    val firebaseAuth = FirebaseAuth.getInstance()
+    val db = FirebaseFirestore.getInstance()
     val retrofit: Retrofit = Retrofit.Builder()
         .baseUrl(base_url)
         .addConverterFactory(GsonConverterFactory.create())
         .build()
-    lateinit var context: MainHostActivity2
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+//        val f:Boolean= arguments?.getBoolean("State Retained",false) ?:false
+        Log.e("HomeFragment onCreate", "called!")
+        context = (activity as? MainHostActivity2)!!
+        context.askFineLocationPermission()
+        placesAdapter = PlaceAdapter(this)
+        val userLocation = getUserGeographicCoordinates()
+//        if (f)
+//        {
+//            Log.e("is state retained", f.toString())
+//            placesAdapter.submitList(placesList)
+//            return
+//        }
+        if (userLocation != null) {
+            context.saveUserLocation(userLocation.latitude, userLocation.longitude)
+            callPlacesAPI(
+                userLocation.latitude,
+                userLocation.longitude,
+                TYPE_RESTAURANT,
+                KEYWORD_RESTAURANT
+            )
+        } else {
+            Log.e("location", "is null")
+        }
     }
 
+    @SuppressLint("LongLogTag")
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
+        inflater: LayoutInflater,
+        container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_home, container, false)
+        Log.e("HomeFragment onCreateView", "called!")
         Log.e("HomeFragment", "created")
         return view
     }
 
+    @SuppressLint("LongLogTag")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        context = (activity as? MainHostActivity2)!!
-        placesRecyclerView = view.findViewById(R.id.places_recycler_view)
+        Log.e("HomeFragment onViewCreated", "called!")
 //        placeTypeMenu = view.findViewById(R.id.select_type_exposed_menu)
+        placesRecyclerView = view.findViewById(R.id.places_recycler_view)
         typeAutoCompleteTextView = view.findViewById(R.id.type_text_view)
-        placesAdapter = PlaceAdapter(this)
         placesRecyclerView.setHasFixedSize(true)
         placesRecyclerView.adapter = placesAdapter
         //createTypeList()
         createPlaceTypesMenu()
-
-        val userLocation = getUserGeographicCoordinates()
-        if (userLocation != null) {
-            context.saveUserLocation(userLocation.latitude, userLocation.longitude)
-            callAPI(userLocation.latitude, userLocation.longitude, TYPE_RESTAURANT, KEYWORD_RESTAURANT)
-        } else {
-            Log.e("location", "is null")
-        }
     }
 
     @SuppressLint("MissingPermission", "LongLogTag")
@@ -126,7 +165,7 @@ class HomeFragment : Fragment(), PlaceAdapter.OnItemClickListener {
         return location
     }//getUserGeographicCoordinates ends
 
-    private fun callAPI(
+    private fun callPlacesAPI(
         latitude: Double,
         longitude: Double,
         type: String,
@@ -145,7 +184,10 @@ class HomeFragment : Fragment(), PlaceAdapter.OnItemClickListener {
         )
 
         call.enqueue(object : Callback<PlaceResponse.Root?> {
-            override fun onResponse(call: Call<PlaceResponse.Root?>?, response: Response<PlaceResponse.Root?>?) {
+            override fun onResponse(
+                call: Call<PlaceResponse.Root?>?,
+                response: Response<PlaceResponse.Root?>?
+            ) {
                 if (response != null) {
                     if (!response.isSuccessful()) {
                         Log.e("Response", "failed:(")
@@ -166,7 +208,7 @@ class HomeFragment : Fragment(), PlaceAdapter.OnItemClickListener {
                         val photoRef = result.photos?.get(0)?.photoReference
                         val address = result.vicinity
                         val rating = result.rating
-                        val totalRatings = result.totalRatings
+                        val totalRatings: Int = result.totalRatings ?: 0
                         val place = Place(id, name, photoRef, address, rating, totalRatings)
                         //sub call
                         subcallAPI(id, place)
@@ -188,7 +230,7 @@ class HomeFragment : Fragment(), PlaceAdapter.OnItemClickListener {
                     Log.e("apiResponse", "is null")
                 }
                 Log.i("Response", body.toString())
-            }
+            }//onResponse ends
 
             private fun subcallAPI(id: String, place: Place) {
                 val subcall = jsonPlaceHolderApi.getDetail(
@@ -197,7 +239,10 @@ class HomeFragment : Fragment(), PlaceAdapter.OnItemClickListener {
                     Keys.apiKey()
                 )
                 subcall.enqueue(object : Callback<DetailResponse.Root?> {
-                    override fun onResponse(call: Call<DetailResponse.Root?>, response: Response<DetailResponse.Root?>) {
+                    override fun onResponse(
+                        call: Call<DetailResponse.Root?>,
+                        response: Response<DetailResponse.Root?>
+                    ) {
                         if (!response.isSuccessful()) {
                             Log.e("subcall Response", "failed:(")
                             Log.e("subcall Response", response.toString())
@@ -220,18 +265,18 @@ class HomeFragment : Fragment(), PlaceAdapter.OnItemClickListener {
                         t.printStackTrace()
                     }
                 })
-            }
+            }//subcallAPI ends
 
             override fun onFailure(call: Call<PlaceResponse.Root?>?, t: Throwable?) {
                 t!!.printStackTrace()
-            }
+            }//onFailure ends
         })
     }//callAPI ends
 
     @SuppressLint("MissingPermission")
     private fun getLastKnownLocation(): Location? {
         mLocationManager =
-            requireContext().getApplicationContext()
+            requireContext().applicationContext
                 .getSystemService(LOCATION_SERVICE) as LocationManager
         val providers = mLocationManager.getProviders(true)
         var bestLocation: Location? = null
@@ -273,7 +318,7 @@ class HomeFragment : Fragment(), PlaceAdapter.OnItemClickListener {
                     keyword = KEYWORD_THEATER
                 }
                 3 -> {
-                    Log.e("when","in park")
+                    Log.e("when", "in park")
                     type = TYPE_PARK
                     keyword = KEYWORD_PARK
                 }
@@ -289,13 +334,14 @@ class HomeFragment : Fragment(), PlaceAdapter.OnItemClickListener {
         val latitude = sharedPrefs?.getString(USER_LAT, null)?.toDouble()
         val longitude = sharedPrefs?.getString(USER_LONG, null)?.toDouble()
         if (latitude != null && longitude != null && type != null && keyword != null) {
-            callAPI(latitude, longitude, type, keyword, isBeingUpdated = true)
+            callPlacesAPI(latitude, longitude, type, keyword, isBeingUpdated = true)
         } else {
             Log.e("callAPI", "some parameter is null")
         }
     }
+
     override fun onPlaceRegister(position: Int) {
-        Log.e("append btn","clicked!")
+        Log.e("append btn", "clicked!")
         val dialog = MaterialAlertDialogBuilder(requireActivity())
             .setTitle("Confirmation")
             .setMessage("Do you want company for this destination?")
@@ -303,7 +349,7 @@ class HomeFragment : Fragment(), PlaceAdapter.OnItemClickListener {
                 // Respond to negative button press
             }
             .setPositiveButton("Yes") { dialog, which ->
-
+                necessaryDocCheck(placesList[position].id, placesList[position].name, placesList[position].photoRef)
             }.show()
 
         dialog.getButton(AlertDialog.BUTTON_POSITIVE)
@@ -311,6 +357,122 @@ class HomeFragment : Fragment(), PlaceAdapter.OnItemClickListener {
         dialog.getButton(AlertDialog.BUTTON_NEGATIVE)
             .setTextColor(ContextCompat.getColor(requireActivity(), R.color.black))
     }
+
+    fun fetchUserPassions(id: String?) {
+        val sharedPref = context.getSharedPreferences(FIRESTORE_SHARED_PREF, MODE_PRIVATE)
+        val tempSet: Set<String> = HashSet<String>(sharedPref.getStringSet(MainHostActivity.USER_PASSIONS, HashSet<String>()))
+        var name: String? =sharedPref.getString(MainActivity.USER_NAME, null)
+        var passionsList: List<String> = tempSet.toList()
+        if(passionsList.isEmpty() || name==null)
+        {
+            db.collection("Users").document(firebaseAuth.currentUser.uid).get().addOnSuccessListener {
+                if (it != null) {
+                    Log.e("user doc snapshot", "DocumentSnapshot data: ${it.data}")
+                    passionsList= it["passions"] as List<String>
+                    name=it.getString("name")
+                    addUserToChatGroup(passionsList,name,id)
+                } else {
+                    Log.e("user doc snapshot", "No such document")
+                }
+            }.addOnFailureListener {
+                Log.e("user doc snapshot","error :( ${it.printStackTrace()}")
+            }
+        }else{
+            addUserToChatGroup(passionsList,name,id)
+        }
+    }
+
+    fun addUserToChatGroup(passionsList: List<String>,name: String?, id: String?) {
+        val userSubCollectionRef = db.collection("Places")
+            .document("${id}")
+            .collection("users")
+        val userPlaceRegisterData = hashMapOf(
+            "passions" to passionsList,
+            "name" to name
+        )
+        userSubCollectionRef.document(firebaseAuth.currentUser.uid).set(userPlaceRegisterData).addOnSuccessListener {
+            Log.e("passionList","added to place users collection")
+        }.addOnFailureListener {
+            Log.e("passionList","failed :( ${it.printStackTrace()}")
+        }
+    }
+
+    fun necessaryDocCheck(id: String?, name: String?, photoRef: String?) {
+        Log.e("clicked place id", "${id}")
+        val placeDocRef = db.collection("Places").document("${id}")
+        placeDocRef.get().addOnCompleteListener {
+            if (it.isSuccessful) {
+                val doc = it.result
+                if (doc != null) {
+                    if (doc.exists()) {
+                        Log.d("Place doc", "Document exists!")
+                        fetchUserPassions(id)
+                    } else {
+                        Log.d("Place doc", "Document does not exist,creating..")
+                        val placeDetails = hashMapOf(
+                            "name" to name,
+                            "url" to photoRef
+                        )
+                        placeDocRef.set(placeDetails).addOnSuccessListener {
+                            Log.e("Place doc write", "success!")
+                            fetchUserPassions(id)
+                        }.addOnFailureListener {
+                            Log.e("Place doc write", "failure :( ${it.stackTrace}")
+                        }
+                    }//innermost else
+                } else {
+                    Log.e("Place doc is", "null")
+                }//inner else ends
+            }//outer if ends
+            else{
+            Log.e("Place doc","not successful")
+            }//outermost else ends
+        }//onComplete callback ends
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        Log.e("onAttach", "called!")
+    }
+
+    //ChIJ2Qc9VhS35zsRIiRt5Dyo4YY ChIJw7Q94Ti35zsRTLvuiPe3p8g
+    override fun onStart() {
+        super.onStart()
+        Log.e("HomeFragment onStart", "called!")
+    }
+
+    override fun onResume() {
+        super.onResume()
+        Log.e("HomeFragment onResume", "called!")
+    }
+
+    override fun onPause() {
+        super.onPause()
+        Log.e("HomeFragment onPause", "called!")
+    }
+
+    override fun onStop() {
+        super.onStop()
+        Log.e("HomeFragment onStop", "called!")
+    }
+
+    @SuppressLint("LongLogTag")
+    override fun onDestroyView() {
+        super.onDestroyView()
+        Log.e("HomeFragment onDestroyView", "called!")
+        context.saveFragmentState(R.id.item_home)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.e("HomeFragment onDestroy", "called!")
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        Log.e("HomeFragment onDetach", "called!")
+    }
+
 //    private fun createTypeList() {
 //        typeList.add(PlaceType(R.drawable.ic_restaurant, "Restaurants"))
 //        typeList.add(PlaceType(R.drawable.ic_mall, "Malls"))
