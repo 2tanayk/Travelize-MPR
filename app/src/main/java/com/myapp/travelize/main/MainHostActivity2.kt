@@ -16,6 +16,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.myapp.travelize.Constants.Companion.ACTION_CHAT_GROUP_SELECTED
+import com.myapp.travelize.Constants.Companion.ACTION_EDIT_PASSIONS
 import com.myapp.travelize.Constants.Companion.ACTION_KEY
 import com.myapp.travelize.R
 import com.myapp.travelize.authentication.MainActivity.Companion.FIRESTORE_SHARED_PREF
@@ -27,6 +28,7 @@ import com.myapp.travelize.main.MainHostActivity.Companion.USER_DOB
 import com.myapp.travelize.main.MainHostActivity.Companion.USER_GENDER
 import com.myapp.travelize.main.MainHostActivity.Companion.USER_INSTITUTE_NAME
 import com.myapp.travelize.main.MainHostActivity.Companion.USER_PASSIONS
+import com.myapp.travelize.main.createprofile.CreateProfileFragment2
 import com.myapp.travelize.main.mainscreen.ChatFragment
 import com.myapp.travelize.main.mainscreen.ChatHostFragment
 import com.myapp.travelize.main.mainscreen.HomeFragment
@@ -50,7 +52,9 @@ class MainHostActivity2 : AppCompatActivity(),FragmentActionListener {
         const val CHAT_HOST_FRAGMENT_TAG = "chat_host"
         const val PROFILE_FRAGMENT_TAG = "profile"
         const val CHAT_FRAGMENT_TAG = "chat"
+        const val PASSIONS_FRAGMENT_TAG = "passions"
         const val CHAT_GROUP_KEY="chat_group_key"
+        const val CHAT_DOC_REF="chat_document_reference"
         const val CHAT_BACKSTACK="chat_backstack"
         const val SAVED_STATE_CONTAINER_KEY = "ContainerKey"
         const val SAVED_STATE_CURRENT_TAB_KEY = "CurrentTabKey"
@@ -77,7 +81,6 @@ class MainHostActivity2 : AppCompatActivity(),FragmentActionListener {
         setContentView(R.layout.activity_main_host2)
         supportActionBar?.hide()
         fragmentManager = supportFragmentManager
-
         bottomNavigationView = findViewById(R.id.bottom_navigation)
         val i = intent
         val isNewUser = i.getBooleanExtra("New User", false)
@@ -147,6 +150,7 @@ class MainHostActivity2 : AppCompatActivity(),FragmentActionListener {
                     {
                         saveFragmentState(it.itemId)
                         val profileFragment=ProfileFragment()
+                        profileFragment.fragmentActionListener=this
                         val savedState=savedStateSparseArray.get(it.itemId,null)
                         if(savedState!=null) {
                             Log.e("SavedState","is not null")
@@ -254,6 +258,17 @@ class MainHostActivity2 : AppCompatActivity(),FragmentActionListener {
             .commit()
     }
 
+    private fun addEditPassionsFragment(bundle: Bundle) {
+        val editPassionsFragment=CreateProfileFragment2()
+        editPassionsFragment.arguments=bundle
+        bottomNavigationView.visibility= GONE
+        fragmentManager
+            .beginTransaction()
+            .replace(R.id.main_fragment_container2,editPassionsFragment, PASSIONS_FRAGMENT_TAG)
+            .addToBackStack(CHAT_BACKSTACK)
+            .commit()
+    }
+
     override fun onActionCallBack(bundle: Bundle) {
         Log.e("onActionCallBack","called!")
         val actionPerformed = bundle.getInt(ACTION_KEY)
@@ -261,6 +276,9 @@ class MainHostActivity2 : AppCompatActivity(),FragmentActionListener {
         when (actionPerformed) {
             ACTION_CHAT_GROUP_SELECTED -> {
                 addChatFragment(bundle)
+            }
+            ACTION_EDIT_PASSIONS -> {
+                addEditPassionsFragment(bundle)
             }
         }
     }

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <corners
+        android:bottomLeftRadius="18dp"
+        android:bottomRightRadius="18dp"
+        android:topLeftRadius="18dp" />
+    <solid android:color="@color/my_chat_bubble" />
+    <padding xmlns:app="http://schemas.android.com/apk/res-auto"
+        app:cardUseCompatPadding="true" />
+</shape>

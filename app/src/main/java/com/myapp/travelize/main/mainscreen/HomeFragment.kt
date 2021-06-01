@@ -15,6 +15,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
+import android.widget.ProgressBar
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -73,6 +74,7 @@ class HomeFragment : Fragment(), PlaceAdapter.OnItemClickListener {
     lateinit var placesAdapter: PlaceAdapter
     lateinit var placesRecyclerView: RecyclerView
     lateinit var typeAutoCompleteTextView: AutoCompleteTextView
+    lateinit var placesProgressBar: ProgressBar
     lateinit var context: MainHostActivity2
 
     val placesList: MutableList<Place> = mutableListOf()
@@ -102,12 +104,7 @@ class HomeFragment : Fragment(), PlaceAdapter.OnItemClickListener {
 //        }
         if (userLocation != null) {
             context.saveUserLocation(userLocation.latitude, userLocation.longitude)
-            callPlacesAPI(
-                userLocation.latitude,
-                userLocation.longitude,
-                TYPE_RESTAURANT,
-                KEYWORD_RESTAURANT
-            )
+            callPlacesAPI(userLocation.latitude, userLocation.longitude, TYPE_RESTAURANT, KEYWORD_RESTAURANT)
         } else {
             Log.e("location", "is null")
         }
@@ -132,6 +129,7 @@ class HomeFragment : Fragment(), PlaceAdapter.OnItemClickListener {
         Log.e("HomeFragment onViewCreated", "called!")
 //        placeTypeMenu = view.findViewById(R.id.select_type_exposed_menu)
         placesRecyclerView = view.findViewById(R.id.places_recycler_view)
+        placesProgressBar=view.findViewById(R.id.places_progress_bar)
         typeAutoCompleteTextView = view.findViewById(R.id.type_text_view)
         placesRecyclerView.setHasFixedSize(true)
         placesRecyclerView.adapter = placesAdapter
@@ -165,29 +163,13 @@ class HomeFragment : Fragment(), PlaceAdapter.OnItemClickListener {
         return location
     }//getUserGeographicCoordinates ends
 
-    private fun callPlacesAPI(
-        latitude: Double,
-        longitude: Double,
-        type: String,
-        keyword: String,
-        radius: String = "1500",
-        isBeingUpdated: Boolean = false
-    ) {
+    private fun callPlacesAPI(latitude: Double, longitude: Double, type: String, keyword: String, radius: String = "1500", isBeingUpdated: Boolean = false) {
         Log.e("current thread", Thread.currentThread().name)
         jsonPlaceHolderApi = retrofit.create(JsonPlaceHolderApi::class.java)
-        val call = jsonPlaceHolderApi.doPlaces(
-            "${latitude},${longitude}",
-            radius,
-            type,
-            keyword,
-            Keys.apiKey()
-        )
+        val call = jsonPlaceHolderApi.doPlaces("${latitude},${longitude}", radius, type, keyword, Keys.apiKey())
 
         call.enqueue(object : Callback<PlaceResponse.Root?> {
-            override fun onResponse(
-                call: Call<PlaceResponse.Root?>?,
-                response: Response<PlaceResponse.Root?>?
-            ) {
+            override fun onResponse(call: Call<PlaceResponse.Root?>?, response: Response<PlaceResponse.Root?>?) {
                 if (response != null) {
                     if (!response.isSuccessful()) {
                         Log.e("Response", "failed:(")
@@ -226,6 +208,7 @@ class HomeFragment : Fragment(), PlaceAdapter.OnItemClickListener {
                     } else {
                         placesAdapter.submitList(placesList)
                     }
+                    placesProgressBar.visibility=View.GONE
                 } else {
                     Log.e("apiResponse", "is null")
                 }
@@ -233,16 +216,9 @@ class HomeFragment : Fragment(), PlaceAdapter.OnItemClickListener {
             }//onResponse ends
 
             private fun subcallAPI(id: String, place: Place) {
-                val subcall = jsonPlaceHolderApi.getDetail(
-                    id,
-                    "opening_hours,formatted_phone_number",
-                    Keys.apiKey()
-                )
+                val subcall = jsonPlaceHolderApi.getDetail(id, "opening_hours,formatted_phone_number", Keys.apiKey())
                 subcall.enqueue(object : Callback<DetailResponse.Root?> {
-                    override fun onResponse(
-                        call: Call<DetailResponse.Root?>,
-                        response: Response<DetailResponse.Root?>
-                    ) {
+                    override fun onResponse(call: Call<DetailResponse.Root?>, response: Response<DetailResponse.Root?>) {
                         if (!response.isSuccessful()) {
                             Log.e("subcall Response", "failed:(")
                             Log.e("subcall Response", response.toString())
@@ -325,6 +301,7 @@ class HomeFragment : Fragment(), PlaceAdapter.OnItemClickListener {
             }
             placesList.clear()
             placesAdapter.notifyDataSetChanged()
+            placesProgressBar.visibility=View.VISIBLE
             updatePlacesRecyclerView(type, keyword)
         }
     }
@@ -368,7 +345,7 @@ class HomeFragment : Fragment(), PlaceAdapter.OnItemClickListener {
             db.collection("Users").document(firebaseAuth.currentUser.uid).get().addOnSuccessListener {
                 if (it != null) {
                     Log.e("user doc snapshot", "DocumentSnapshot data: ${it.data}")
-                    passionsList= it["passions"] as List<String>
+                    passionsList= (it["passions"] as List<String>)
                     name=it.getString("name")
                     addUserToChatGroup(passionsList,name,id)
                 } else {

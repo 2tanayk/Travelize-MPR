@@ -13,4 +13,5 @@
     <color name="horizontal_rule_gray">#c0c0c0</color>
     <color name="rating_golden_yellow">#ffe234</color>
     <color name="msg_white">#F9F9F9</color>
+    <color name="my_chat_bubble">#DCF8C6</color>
 </resources>
