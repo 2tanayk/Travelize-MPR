@@ -17,6 +17,10 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.myapp.travelize.Constants.Companion.ACTION_CHAT_GROUP_SELECTED
 import com.myapp.travelize.Constants.Companion.ACTION_EDIT_PASSIONS
+import com.myapp.travelize.Constants.Companion.ACTION_EDIT_PFP
+import com.myapp.travelize.Constants.Companion.ACTION_EDIT_PFP_CAMERA
+import com.myapp.travelize.Constants.Companion.ACTION_EDIT_PFP_DELETE
+import com.myapp.travelize.Constants.Companion.ACTION_EDIT_PFP_GALLERY
 import com.myapp.travelize.Constants.Companion.ACTION_KEY
 import com.myapp.travelize.R
 import com.myapp.travelize.authentication.MainActivity.Companion.FIRESTORE_SHARED_PREF
@@ -60,6 +64,15 @@ class MainHostActivity2 : AppCompatActivity(),FragmentActionListener {
         const val SAVED_STATE_CURRENT_TAB_KEY = "CurrentTabKey"
     }
 
+    private val requestPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+            if (isGranted) {
+                Log.e("Permission", "Granted")
+            } else {
+                Log.e("Permission", "Denied")
+            }
+        }
+
     private val requestAccessFineLocationPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
             if (isGranted) {
@@ -75,12 +88,14 @@ class MainHostActivity2 : AppCompatActivity(),FragmentActionListener {
     private var currentSelectItemId = R.id.item_home
     lateinit var fragmentManager: FragmentManager
     lateinit var bottomNavigationView: BottomNavigationView
+    lateinit var pfpBottomSheetDialogFragment: PfpBottomSheetDialogFragment
     val docRef = collectionRef.document(firebaseAuth.getCurrentUser().getUid())
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main_host2)
         supportActionBar?.hide()
         fragmentManager = supportFragmentManager
+        pfpBottomSheetDialogFragment= PfpBottomSheetDialogFragment()
         bottomNavigationView = findViewById(R.id.bottom_navigation)
         val i = intent
         val isNewUser = i.getBooleanExtra("New User", false)
@@ -269,6 +284,45 @@ class MainHostActivity2 : AppCompatActivity(),FragmentActionListener {
             .commit()
     }
 
+    private fun showPfpBottomSheetDialogFragment(bundle: Bundle) {
+        pfpBottomSheetDialogFragment.fragmentActionListener=this
+        pfpBottomSheetDialogFragment.show(fragmentManager,PfpBottomSheetDialogFragment.TAG)
+    }
+
+    private fun callDeleteUserPfp() {
+        val currentFragment=fragmentManager.findFragmentById(R.id.main_fragment_container2)
+        if( currentFragment is ProfileFragment)
+        {
+            currentFragment.deleteUserPfp()
+        }
+    }
+
+    private fun callReplaceUserPfpGallery() {
+        if (!hasExternalStoragePermission()) {
+            requestPermissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+        }
+        val currentFragment=fragmentManager.findFragmentById(R.id.main_fragment_container2)
+        if( currentFragment is ProfileFragment)
+        {
+            if (hasExternalStoragePermission()) {
+                currentFragment.getImageFromGalleryForPfp()
+            }
+        }
+    }
+
+    private fun callReplaceUserPfpCamera() {
+        if (!hasCameraPermission()) {
+            requestPermissionLauncher.launch(Manifest.permission.CAMERA)
+        }
+        val currentFragment=fragmentManager.findFragmentById(R.id.main_fragment_container2)
+        if( currentFragment is ProfileFragment)
+        {
+            if(hasCameraPermission()) {
+                currentFragment.captureImageForPfp()
+            }
+        }
+    }
+
     override fun onActionCallBack(bundle: Bundle) {
         Log.e("onActionCallBack","called!")
         val actionPerformed = bundle.getInt(ACTION_KEY)
@@ -280,8 +334,26 @@ class MainHostActivity2 : AppCompatActivity(),FragmentActionListener {
             ACTION_EDIT_PASSIONS -> {
                 addEditPassionsFragment(bundle)
             }
+            ACTION_EDIT_PFP -> {
+                showPfpBottomSheetDialogFragment(bundle)
+            }
+            ACTION_EDIT_PFP_DELETE -> {
+                callDeleteUserPfp()
+            }
+            ACTION_EDIT_PFP_GALLERY -> {
+                callReplaceUserPfpGallery()
+            }
+            ACTION_EDIT_PFP_CAMERA -> {
+                callReplaceUserPfpCamera()
+            }
         }
     }
+
+    fun hasExternalStoragePermission() =
+        ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+
+    fun hasCameraPermission() =
+        ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED
 
     override fun onBackPressed() {
         if(this::fragmentManager.isInitialized && fragmentManager.findFragmentById(R.id.main_fragment_container2) is ChatFragment)

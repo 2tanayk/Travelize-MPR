@@ -1,7 +1,25 @@
-<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:ellipsize="end"
-    android:maxLines="1"
-    android:padding="16dp"
-    android:textAppearance="?attr/textAppearanceSubtitle1" />
+    android:orientation="horizontal"
+    android:padding="10dp">
+
+    <ImageView
+        android:id="@+id/place_type_icon"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="0.2"
+        android:layout_marginStart="10dp"
+        android:src="@drawable/ic_restaurant" />
+    <TextView
+        android:id="@+id/place_type_txt"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.8"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:padding="16dp"
+        android:text="Restaurant"
+        android:layout_marginEnd="10dp"
+        android:textAppearance="?attr/textAppearanceSubtitle1" />
+</LinearLayout>

@@ -1,23 +1,22 @@
 package com.myapp.travelize.main.mainscreen
 
 import android.annotation.SuppressLint
+import android.content.ActivityNotFoundException
 import android.content.Context
+import android.content.Context.MODE_PRIVATE
+import android.net.Uri
 import android.os.Bundle
-import android.text.Editable
 import android.text.InputType
-import android.text.TextWatcher
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
-import android.widget.EditText
-import android.widget.ImageView
-import android.widget.ProgressBar
-import android.widget.TextView
+import android.widget.*
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
-import androidx.core.content.ContextCompat.getSystemService
+import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
 import com.google.android.material.chip.Chip
@@ -25,13 +24,17 @@ import com.google.android.material.chip.ChipGroup
 import com.google.android.material.imageview.ShapeableImageView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.myapp.travelize.Constants
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageReference
 import com.myapp.travelize.Constants.Companion.ACTION_EDIT_PASSIONS
+import com.myapp.travelize.Constants.Companion.ACTION_EDIT_PFP
 import com.myapp.travelize.Constants.Companion.ACTION_KEY
 import com.myapp.travelize.R
+import com.myapp.travelize.authentication.MainActivity.Companion.FIRESTORE_SHARED_PREF
 import com.myapp.travelize.interfaces.FragmentActionListener
+import com.myapp.travelize.main.MainHostActivity.Companion.PROFILE_PIC_URL
 import com.myapp.travelize.main.MainHostActivity.Companion.USER_PASSIONS
-import com.myapp.travelize.main.MainHostActivity2
+import java.io.File
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -41,8 +44,14 @@ class ProfileFragment : Fragment() {
     val firebaseAuth = FirebaseAuth.getInstance()
     val collectionRef = db.collection("Users")
     val userDocRef = collectionRef.document(firebaseAuth.currentUser.uid)
+    val profilePicFileName = "profilePic.png"
+    val storage: FirebaseStorage = FirebaseStorage.getInstance()
+    val storageRef = storage.reference
+    val imageRef: StorageReference =
+        storageRef.child(firebaseAuth.currentUser.uid + "/images/")
 
-    lateinit var editProfilePic: ShapeableImageView
+    lateinit var profilePicImg: ShapeableImageView
+    lateinit var editProfilePicIcon: ShapeableImageView
     lateinit var nameAndAgeTextView: TextView
     lateinit var descriptionEditText: EditText
     lateinit var editDescriptionIcon: ImageView
@@ -52,6 +61,9 @@ class ProfileFragment : Fragment() {
     lateinit var editPassionsIcon: ImageView
     lateinit var profileProgressBar: ProgressBar
     lateinit var fragmentActionListener: FragmentActionListener
+    lateinit var profilePicFile: File
+    lateinit var picUri: Uri
+    lateinit var firebaseProfilePicUrl: String
     lateinit var name: String
     lateinit var dob: String
     lateinit var gender: String
@@ -59,6 +71,63 @@ class ProfileFragment : Fragment() {
     lateinit var imageUrl: String
     lateinit var education: String
     lateinit var passions: List<String>
+
+    val getCapturedImage =
+        registerForActivityResult(ActivityResultContracts.TakePicture()) {
+            if (it) {
+                Log.e("callback", "image uri saved! " + picUri.toString())
+                profilePicImg.setImageURI(picUri)
+                updatePfp()
+            } else {
+                Log.e("callback", "failed!")
+            }
+        }
+
+    val getGalleryImage = registerForActivityResult(ActivityResultContracts.GetContent()) {
+        try {
+            Log.e("gallery url",it.toString())
+            profilePicImg.setImageURI(it)
+            picUri = it
+            updatePfp()
+        } catch (e: Exception) {
+            Log.e("callback", "failed!")
+            e.printStackTrace()
+        }
+    }
+
+    private fun updatePfp() {
+        val profilePicRef = imageRef.child("profilePic.png")
+        profilePicRef.putFile(picUri).addOnSuccessListener {
+            Log.e("Profile picture","updated!")
+            profilePicRef.downloadUrl.addOnCompleteListener {
+                    if (it.isSuccessful)
+                    {
+                        firebaseProfilePicUrl=it.result.toString()
+                        updateUserPfpUrl(firebaseProfilePicUrl)
+                        val sharedPref = requireActivity().getSharedPreferences(FIRESTORE_SHARED_PREF, MODE_PRIVATE)
+                        val editor = sharedPref.edit()
+                        editor.putString(PROFILE_PIC_URL, firebaseProfilePicUrl)
+                        editor.apply()
+                    }else{
+                        Log.e("download url","fetch failed :(")
+                    }
+                }
+        }.addOnFailureListener{
+            it.printStackTrace()
+            Toast.makeText(activity, "Error,profile picture couldn't be updated", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun updateUserPfpUrl(firebaseProfilePicUrl: String) {
+        userDocRef.update("imageURL",firebaseProfilePicUrl).addOnCompleteListener {
+            if(it.isSuccessful){
+                Log.e("pfp update url","success!")
+            }else{
+                Log.e("pfp update url","failure :(")
+            }
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
     }
@@ -76,7 +145,8 @@ class ProfileFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         Log.e("ProfileFragment onViewCreated", "called!")
-        editProfilePic = view.findViewById(R.id.editProfilepicImageView)
+        profilePicImg = view.findViewById(R.id.editProfilepicImageView)
+        editProfilePicIcon=view.findViewById(R.id.edit_pfp_icon)
         nameAndAgeTextView = view.findViewById(R.id.name_age_txt_view)
         descriptionEditText = view.findViewById(R.id.edit_description_txt_view)
         editDescriptionIcon = view.findViewById(R.id.editConfirm_icon_img_view)
@@ -135,6 +205,16 @@ class ProfileFragment : Fragment() {
                 Log.e("fragmentActionListener","is not initialized in profile fragment")
             }
         }
+
+        editProfilePicIcon.setOnClickListener {
+            if(this::fragmentActionListener.isInitialized){
+                val bundle=Bundle()
+                bundle.putInt(ACTION_KEY, ACTION_EDIT_PFP)
+                fragmentActionListener.onActionCallBack(bundle)
+            }else{
+                Log.e("fragmentActionListener","is not initialized in profile fragment")
+            }
+        }
     }
 
     private fun disableEditText() {
@@ -170,12 +250,14 @@ class ProfileFragment : Fragment() {
     }
 
     private fun populateProfilePage() {
-        Glide.with(editProfilePic.context)
-            .load(imageUrl)
-            .placeholder(R.drawable.blankplaceholder)
-            .error(R.drawable.brokenplaceholder)
-            .fallback(R.drawable.brokenplaceholder)
-            .into(editProfilePic)
+        if(!imageUrl.equals("")) {
+            Glide.with(profilePicImg.context)
+                .load(imageUrl)
+                .placeholder(R.drawable.blankplaceholder)
+                .error(R.drawable.brokenplaceholder)
+                .fallback(R.drawable.brokenplaceholder)
+                .into(profilePicImg)
+        }
         descriptionEditText.setText(description)
         val index1 = dob.indexOf('/')
         val index2 = dob.lastIndexOf('/')
@@ -191,11 +273,6 @@ class ProfileFragment : Fragment() {
             val chip = Chip(activity)
             chip.text = passions[index]
             chip.tag = passions[index]
-            // necessary to get single selection working
-//            chip.isClickable = false
-//            chip.checkedIcon = ContextCompat.getDrawable(requireActivity(), R.drawable.ic_chipcheck)
-//            chip.isCheckable = true
-//            chip.isCheckedIconVisible = true
             editPassionsChipGroup.addView(chip)
         }
         profileProgressBar.visibility=View.GONE
@@ -212,6 +289,32 @@ class ProfileFragment : Fragment() {
         }
         val ageInt = age
         return ageInt.toString()
+    }
+
+    fun deleteUserPfp() {
+        userDocRef.update("imageURL","").addOnCompleteListener {
+            if(it.isSuccessful){
+                Log.e("pfp deletion","success!")
+                profilePicImg.setImageResource(R.drawable.blankuser)
+            }else{
+                Log.e("pfp deletion","failure :(")
+            }
+        }
+    }
+
+    fun captureImageForPfp() {
+        profilePicFile = File(requireActivity().filesDir, profilePicFileName)
+        picUri = FileProvider.getUriForFile(requireActivity(), "com.myapp.travelize", profilePicFile)
+        try {
+            getCapturedImage.launch(picUri)
+        } catch (e: ActivityNotFoundException) {
+            // display error state to the user
+            e.printStackTrace()
+        }
+    }
+
+    fun getImageFromGalleryForPfp() {
+        getGalleryImage.launch("image/*")
     }
 
     @SuppressLint("LongLogTag")

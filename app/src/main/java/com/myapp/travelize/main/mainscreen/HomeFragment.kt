@@ -26,6 +26,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.myapp.travelize.Keys
 import com.myapp.travelize.R
 import com.myapp.travelize.adapters.PlaceAdapter
+import com.myapp.travelize.adapters.PlaceTypeAdapter
 import com.myapp.travelize.authentication.MainActivity
 import com.myapp.travelize.authentication.MainActivity.Companion.FIRESTORE_SHARED_PREF
 import com.myapp.travelize.interfaces.JsonPlaceHolderApi
@@ -133,7 +134,7 @@ class HomeFragment : Fragment(), PlaceAdapter.OnItemClickListener {
         typeAutoCompleteTextView = view.findViewById(R.id.type_text_view)
         placesRecyclerView.setHasFixedSize(true)
         placesRecyclerView.adapter = placesAdapter
-        //createTypeList()
+        createTypeList()
         createPlaceTypesMenu()
     }
 
@@ -272,12 +273,33 @@ class HomeFragment : Fragment(), PlaceAdapter.OnItemClickListener {
         placesAdapter.notifyItemChanged(position)
     }
 
+        private fun createTypeList() {
+        typeList.add(PlaceType(R.drawable.ic_restaurant, "Restaurants"))
+        typeList.add(PlaceType(R.drawable.ic_mall, "Malls"))
+        typeList.add(PlaceType(R.drawable.ic_movie, "Theatres"))
+        typeList.add(PlaceType(R.drawable.ic_park, "Parks"))
+    }
+
     private fun createPlaceTypesMenu() {
-        val placeTypeList = listOf("Restaurants", "Malls", "Theatres", "Parks")
-        val menuAdapter = ArrayAdapter(requireActivity(), R.layout.menu_list_item, placeTypeList)
-        typeAutoCompleteTextView.setAdapter(menuAdapter)
+//        val placeTypeList = listOf("Restaurants", "Malls", "Theatres", "Parks")
+//        val menuAdapter = ArrayAdapter(requireActivity(), R.layout.menu_list_item, placeTypeList)
+        val placeTypeList:ArrayList<PlaceType> = arrayListOf()
+        placeTypeList.addAll(typeList)
+        val placeTypeMenuAdapter=PlaceTypeAdapter(requireActivity(),placeTypeList)
+        typeAutoCompleteTextView.setAdapter(placeTypeMenuAdapter)
+        val restaurantIcon=ContextCompat.getDrawable(requireActivity(),R.drawable.ic_restaurant)
+        if (restaurantIcon != null) {
+            restaurantIcon.setBounds(0,0, restaurantIcon.intrinsicWidth,restaurantIcon.intrinsicHeight)
+        }else{
+            Log.e("icon","is null")
+        }
+        typeAutoCompleteTextView.setCompoundDrawables(restaurantIcon,null,null,null)
         typeAutoCompleteTextView.setOnItemClickListener { adapterView, view, i, l ->
             Log.e("Menu", "clicked ${i} ${placeTypeList[i]}")
+            val iconDrawable=ContextCompat.getDrawable(requireActivity(),placeTypeList[i].typeIcon)
+            //typeAutoCompleteTextView.setCompoundDrawablesWithIntrinsicBounds(0,0,0,0)
+            typeAutoCompleteTextView.setCompoundDrawables(iconDrawable,null,null,null)
+            typeAutoCompleteTextView.setText(placeTypeList[i].typeName,false)
             var type: String? = null
             var keyword: String? = null
             when (i) {
@@ -450,10 +472,5 @@ class HomeFragment : Fragment(), PlaceAdapter.OnItemClickListener {
         Log.e("HomeFragment onDetach", "called!")
     }
 
-//    private fun createTypeList() {
-//        typeList.add(PlaceType(R.drawable.ic_restaurant, "Restaurants"))
-//        typeList.add(PlaceType(R.drawable.ic_mall, "Malls"))
-//        typeList.add(PlaceType(R.drawable.ic_movie, "Theatres"))
-//        typeList.add(PlaceType(R.drawable.ic_park, "Parks"))
-//    }
+
 }

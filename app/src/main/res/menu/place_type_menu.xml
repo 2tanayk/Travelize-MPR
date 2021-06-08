@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/option_restaurant"
+        android:title="Restaurants" />
+    <item android:id="@+id/option_mall"
+        android:title="Malls" />
+    <item android:id="@+id/option_theater"
+        android:title="Theaters" />
+    <item android:id="@+id/option_park"
+        android:title="Parks" />
+</menu>

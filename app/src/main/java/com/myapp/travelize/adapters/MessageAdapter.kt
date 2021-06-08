@@ -17,6 +17,7 @@ import com.myapp.travelize.R
 import com.myapp.travelize.abstractclasses.MessageViewHolder
 import com.myapp.travelize.models.Message
 import java.text.SimpleDateFormat
+import java.util.*
 
 
 class MessageAdapter(options: FirestoreRecyclerOptions<Message>) :
@@ -47,7 +48,9 @@ class MessageAdapter(options: FirestoreRecyclerOptions<Message>) :
 
     override fun onBindViewHolder(holder: MessageViewHolder<*>, position: Int, model: Message) {
         Log.e("model",model.toString())
-        val styledMsgTimestamp = SpannableString(SimpleDateFormat("HH:mm").format(model.sent))
+        Log.e("timestamp",model.sent.toString())
+        val tempTime:Date=model.sent ?: Date()
+        val styledMsgTimestamp = SpannableString(SimpleDateFormat("HH:mm").format(tempTime))
         styledMsgTimestamp.setSpan(AlignmentSpan.Standard(Layout.Alignment.ALIGN_OPPOSITE),0,styledMsgTimestamp.length,Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
         when (holder) {
             is MyMessageViewHolder ->{
