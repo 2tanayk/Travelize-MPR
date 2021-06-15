@@ -2,7 +2,9 @@ package com.myapp.travelize.authentication
 
 import android.content.Intent
 import android.os.Bundle
+import android.text.Editable
 import android.text.TextUtils
+import android.text.TextWatcher
 import android.util.Log
 import android.util.Patterns
 import androidx.fragment.app.Fragment
@@ -27,6 +29,7 @@ class LoginFragment : Fragment() {
     lateinit var passwordEditText: TextInputEditText
     lateinit var emailEditText: TextInputEditText
     lateinit var resetTextView: TextView
+    lateinit var  signinBtn: Button
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         auth = FirebaseAuth.getInstance()
@@ -37,17 +40,28 @@ class LoginFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        val view = inflater.inflate(R.layout.fragment_login, container, false)
+        return inflater.inflate(R.layout.fragment_login, container, false)
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         val signupInsteadBtn = view.findViewById<TextView>(R.id.signupTextView)
-        val signinBtn = view.findViewById<Button>(R.id.signinBtn)
+        signinBtn = view.findViewById<Button>(R.id.signinBtn)
         emailEditText = view.findViewById(R.id.emailEditText2)
         passwordEditText = view.findViewById(R.id.passwordEditText2)
         resetTextView = view.findViewById(R.id.forgotPasswordTextView)
         Log.e("Checking something:", activity.toString())
 
+        //disablesignin button
+        signinBtn.isEnabled = false
+
         signupInsteadBtn.setOnClickListener {
             (activity as? MainActivity)?.signupInstead()
         }
+
+        //set text change listener
+        emailEditText.addTextChangedListener( textWatcher)
+        passwordEditText.addTextChangedListener( textWatcher)
 
         signinBtn.setOnClickListener {
 //            Log.e("Checking Register form", name.text.toString())
@@ -55,17 +69,22 @@ class LoginFragment : Fragment() {
 //            Log.e("Checking Register form", password.text.toString())
 //            Log.e("Checking Register form", confirmPassword.text.toString())
 
-            val email = emailEditText.text.toString().trim()
-            val password = passwordEditText.text.toString().trim()
+            val email =getText( emailEditText)
+            val password = getText(passwordEditText)
 
-            validate(email, password)
+           if( validate(email, password) ){
+               signin(email, password)
+           }
         }
         resetTextView.setOnClickListener {
-            val email = emailEditText.text.toString().trim()
+            val email = getText( emailEditText)
             invokeAlertDialog(email)
         }
-        return view
     }
+
+    // get text from edit text
+    fun getText( editText : TextInputEditText ) : String =
+        editText.text.toString().trim()
 
     private fun invokeAlertDialog(email: String) {
         val dialog = MaterialAlertDialogBuilder(requireActivity())
@@ -93,16 +112,16 @@ class LoginFragment : Fragment() {
 
     }
 
-    private fun validate(email: String, password: String) {
+    private fun validate(email: String, password: String) : Boolean {
         if (TextUtils.isEmpty(email) || TextUtils.isEmpty(password)) {
             Toast.makeText(activity, "Some Field is Empty!", Toast.LENGTH_SHORT).show()
-            return
+            return false
         }
         if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
             emailEditText.error = "Invalid email address!"
-            return
+            return false
         }
-        signin(email, password)
+        return true
     }
 
     private fun signin(email: String, password: String) {
@@ -137,5 +156,22 @@ class LoginFragment : Fragment() {
             }
     }
 
+    //textwatcher
+    private val textWatcher  = object : TextWatcher {
+        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            //
+            val email = getText(emailEditText)
+            val password = getText(passwordEditText)
+
+            // eabled when all texts are filled
+            signinBtn.isEnabled =
+                (  !TextUtils.isEmpty(email) && !TextUtils.isEmpty(  password )  )
+        }
+
+        override fun afterTextChanged(s: Editable?) {  }
+
+    }
 
 }
