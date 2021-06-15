@@ -6,12 +6,15 @@ import com.myapp.travelize.models.Place
 
 class PlaceDiffUtil : DiffUtil.ItemCallback<Place>() {
     override fun areItemsTheSame(oldItem: Place, newItem: Place): Boolean {
-        Log.e("areItemsTheSame","invoked!")
+        Log.e("areItemsTheSame", "invoked!")
+        if (oldItem.id.equals(newItem.id)) {
+            Log.e("refresh result", "is same ${oldItem.name}")
+        }
         return oldItem.id.equals(newItem.id)
     }
 
     override fun areContentsTheSame(oldItem: Place, newItem: Place): Boolean {
-        Log.e("areContentsTheSame","invoked!")
+        Log.e("areContentsTheSame", "invoked!")
         return oldItem.address.equals(newItem.address) &&
                 oldItem.name.equals(newItem.name) &&
                 oldItem.phoneNo.equals(newItem.phoneNo) &&

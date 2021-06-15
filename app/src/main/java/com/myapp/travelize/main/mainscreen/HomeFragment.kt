@@ -20,6 +20,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -76,6 +77,7 @@ class HomeFragment : Fragment(), PlaceAdapter.OnItemClickListener {
     lateinit var placesRecyclerView: RecyclerView
     lateinit var typeAutoCompleteTextView: AutoCompleteTextView
     lateinit var placesProgressBar: ProgressBar
+    lateinit var placesSwipeRefreshLayout: SwipeRefreshLayout
     lateinit var context: MainHostActivity2
 
     val placesList: MutableList<Place> = mutableListOf()
@@ -87,6 +89,8 @@ class HomeFragment : Fragment(), PlaceAdapter.OnItemClickListener {
         .baseUrl(base_url)
         .addConverterFactory(GsonConverterFactory.create())
         .build()
+    var type=TYPE_RESTAURANT
+    var keyword= KEYWORD_RESTAURANT
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -112,11 +116,7 @@ class HomeFragment : Fragment(), PlaceAdapter.OnItemClickListener {
     }
 
     @SuppressLint("LongLogTag")
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_home, container, false)
         Log.e("HomeFragment onCreateView", "called!")
@@ -130,10 +130,23 @@ class HomeFragment : Fragment(), PlaceAdapter.OnItemClickListener {
         Log.e("HomeFragment onViewCreated", "called!")
 //        placeTypeMenu = view.findViewById(R.id.select_type_exposed_menu)
         placesRecyclerView = view.findViewById(R.id.places_recycler_view)
+        placesSwipeRefreshLayout=view.findViewById(R.id.places_swipe_refresh_layout)
         placesProgressBar=view.findViewById(R.id.places_progress_bar)
         typeAutoCompleteTextView = view.findViewById(R.id.type_text_view)
         placesRecyclerView.setHasFixedSize(true)
         placesRecyclerView.adapter = placesAdapter
+        placesSwipeRefreshLayout.setOnRefreshListener {
+            Log.e("onRefresh", "called")
+            val userLocation = getUserGeographicCoordinates()
+            if (userLocation != null) {
+                Log.e("user locn.","not null")
+                placesProgressBar.visibility=View.VISIBLE
+                placesList.clear()
+                callPlacesAPI(userLocation.latitude, userLocation.longitude, type, keyword)
+                context.saveUserLocation(userLocation.latitude, userLocation.longitude)
+            }
+            placesSwipeRefreshLayout.isRefreshing=false
+        }
         createTypeList()
         createPlaceTypesMenu()
     }
@@ -300,8 +313,7 @@ class HomeFragment : Fragment(), PlaceAdapter.OnItemClickListener {
             //typeAutoCompleteTextView.setCompoundDrawablesWithIntrinsicBounds(0,0,0,0)
             typeAutoCompleteTextView.setCompoundDrawables(iconDrawable,null,null,null)
             typeAutoCompleteTextView.setText(placeTypeList[i].typeName,false)
-            var type: String? = null
-            var keyword: String? = null
+
             when (i) {
                 0 -> {
                     type = TYPE_RESTAURANT
