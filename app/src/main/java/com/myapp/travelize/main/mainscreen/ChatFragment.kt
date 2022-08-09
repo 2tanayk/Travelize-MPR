@@ -28,10 +28,11 @@ import com.myapp.travelize.authentication.MainActivity.Companion.FIRESTORE_SHARE
 import com.myapp.travelize.authentication.MainActivity.Companion.USER_NAME
 import com.myapp.travelize.main.MainHostActivity2.Companion.CHAT_DOC_REF
 import com.myapp.travelize.main.MainHostActivity2.Companion.CHAT_GROUP_KEY
+import com.myapp.travelize.main.ProfileDialogFragment
 import com.myapp.travelize.models.Message
 
 
-class ChatFragment : Fragment() {
+class ChatFragment : Fragment(), MessageAdapter.OnItemClickListener {
     val db = FirebaseFirestore.getInstance()
     val firebaseAuth = FirebaseAuth.getInstance()
     val userDocRef = db.collection("Users").document(firebaseAuth.getCurrentUser().getUid())
@@ -51,7 +52,11 @@ class ChatFragment : Fragment() {
         super.onCreate(savedInstanceState)
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_chat, container, false)
         return view
@@ -61,7 +66,7 @@ class ChatFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         messagesView = view
         sharedPref = requireActivity().getSharedPreferences(FIRESTORE_SHARED_PREF, MODE_PRIVATE)
-        msgsProgressBar=view.findViewById(R.id.msgs_progress_bar)
+        msgsProgressBar = view.findViewById(R.id.msgs_progress_bar)
         chatBoxEditText = view.findViewById(R.id.type_msg_edit_txt)
         attachmentIconImgView = view.findViewById(R.id.attachment_img_view)
         clickIconImgView = view.findViewById(R.id.click_pic_img_view)
@@ -108,16 +113,16 @@ class ChatFragment : Fragment() {
     }
 
     private fun setUpMessagesRecyclerView(chatDocumentRefString: String) {
-        Log.e("Your chat","retrieving msgs")
+        Log.e("Your chat", "retrieving msgs")
         val query = db.document(chatDocumentRefString).collection("messages").orderBy("sent")
         val options: FirestoreRecyclerOptions<Message> = FirestoreRecyclerOptions.Builder<Message>()
             .setQuery(query, Message::class.java)
             .build()
-        messagesAdapter = MessageAdapter(options)
+        messagesAdapter = MessageAdapter(options, this)
         messagesRecyclerView = messagesView.findViewById(R.id.msgs_recycler_view)
 //        messagesRecyclerView.setHasFixedSize(true)
         messagesRecyclerView.adapter = messagesAdapter
-        msgsProgressBar.visibility=View.GONE
+        msgsProgressBar.visibility = View.GONE
     }
 
     private fun sendUserTextMessage() {
@@ -165,7 +170,7 @@ class ChatFragment : Fragment() {
 
     private fun scrollToLastMsg() {
         Handler(Looper.getMainLooper()).postDelayed({
-            messagesRecyclerView.scrollToPosition(messagesRecyclerView.adapter?.itemCount!!-1)
+            messagesRecyclerView.scrollToPosition(messagesRecyclerView.adapter?.itemCount!! - 1)
         }, 500)
     }
 
@@ -177,5 +182,27 @@ class ChatFragment : Fragment() {
     override fun onStop() {
         super.onStop()
         messagesAdapter.stopListening()
+    }
+
+    override fun onMessageClick(position: Int, item: Message) {
+        Log.e("Chat", item.toString())
+        val dialog = ProfileDialogFragment()
+
+        val args = Bundle()
+
+        db.collection("Users").document(item.senderUid + "").get().addOnSuccessListener {
+            Log.e("doc data", it.toString())
+            args.putString("name", it.getString("name")!!.trim())
+            args.putString("gender", it.getString("gender")!!.trim())
+            args.putString("description", it.getString("description") ?: "")
+            args.putString("imageURL", it.getString("imageURL") ?: "")
+            args.putString("institute", it.getString("insitute") ?: "")
+            args.putString("dob", it.getString("dob"))
+            args.putStringArrayList("passions", it.get("passions") as ArrayList<String>)
+
+            dialog.arguments = args
+            dialog.show(requireActivity().supportFragmentManager, "profileDialog")
+        }
+
     }
 }

@@ -9,6 +9,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.recyclerview.widget.RecyclerView
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter
 import com.firebase.ui.firestore.FirestoreRecyclerOptions
 import com.google.firebase.auth.FirebaseAuth
@@ -20,26 +21,34 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 
-class MessageAdapter(options: FirestoreRecyclerOptions<Message>) :
+class MessageAdapter(
+    options: FirestoreRecyclerOptions<Message>,
+    val listener: OnItemClickListener
+) :
     FirestoreRecyclerAdapter<Message, MessageViewHolder<*>>(options) {
-    companion object{
-        const val TYPE_MY_TEXT_MESSAGE=0
-        const val TYPE_OTHERS_TEXT_MESSAGE=1
-        const val TEXT_MESSAGE=0
+    companion object {
+        const val TYPE_MY_TEXT_MESSAGE = 0
+        const val TYPE_OTHERS_TEXT_MESSAGE = 1
+        const val TEXT_MESSAGE = 0
     }
+
     val currentUid = FirebaseAuth.getInstance().currentUser.uid
+
     interface OnMessageSendListener {
         fun onMessageSend(position: Int, snapshot: DocumentSnapshot)
     }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MessageViewHolder<*> {
-        val context=parent.context
+        val context = parent.context
         return when (viewType) {
             TYPE_MY_TEXT_MESSAGE -> {
-                val view = LayoutInflater.from(context).inflate(R.layout.my_chat_item, parent, false)
+                val view =
+                    LayoutInflater.from(context).inflate(R.layout.my_chat_item, parent, false)
                 MyMessageViewHolder(view)
             }
             TYPE_OTHERS_TEXT_MESSAGE -> {
-                val view = LayoutInflater.from(parent.context).inflate(R.layout.other_chat_item, parent, false)
+                val view = LayoutInflater.from(parent.context)
+                    .inflate(R.layout.other_chat_item, parent, false)
                 OtherMessageViewHolder(view)
             }
             else -> throw IllegalArgumentException("Invalid view type")
@@ -47,19 +56,24 @@ class MessageAdapter(options: FirestoreRecyclerOptions<Message>) :
     }
 
     override fun onBindViewHolder(holder: MessageViewHolder<*>, position: Int, model: Message) {
-        Log.e("model",model.toString())
-        Log.e("timestamp",model.sent.toString())
-        val tempTime:Date=model.sent ?: Date()
+        Log.e("model", model.toString())
+        Log.e("timestamp", model.sent.toString())
+        val tempTime: Date = model.sent ?: Date()
         val styledMsgTimestamp = SpannableString(SimpleDateFormat("HH:mm").format(tempTime))
-        styledMsgTimestamp.setSpan(AlignmentSpan.Standard(Layout.Alignment.ALIGN_OPPOSITE),0,styledMsgTimestamp.length,Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+        styledMsgTimestamp.setSpan(
+            AlignmentSpan.Standard(Layout.Alignment.ALIGN_OPPOSITE),
+            0,
+            styledMsgTimestamp.length,
+            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+        )
         when (holder) {
-            is MyMessageViewHolder ->{
-                holder.outgoingMsgTextView.text=model.msg+"\n"
+            is MyMessageViewHolder -> {
+                holder.outgoingMsgTextView.text = model.msg + "\n"
                 holder.outgoingMsgTextView.append(styledMsgTimestamp)
             }
             is OtherMessageViewHolder -> {
-                holder.incomingMsgTextView.text=model.senderName+"\n"
-                holder.incomingMsgTextView.append(model.msg+"\n")
+                holder.incomingMsgTextView.text = model.senderName + "\n"
+                holder.incomingMsgTextView.append(model.msg + "\n")
                 holder.incomingMsgTextView.append(styledMsgTimestamp)
             }
             else -> throw IllegalArgumentException()
@@ -67,7 +81,7 @@ class MessageAdapter(options: FirestoreRecyclerOptions<Message>) :
     }
 
     override fun getItemViewType(position: Int): Int {
-        if(currentUid==snapshots[position].senderUid && snapshots[position].msgType== TEXT_MESSAGE) {
+        if (currentUid == snapshots[position].senderUid && snapshots[position].msgType == TEXT_MESSAGE) {
             return TYPE_MY_TEXT_MESSAGE
         }
         return TYPE_OTHERS_TEXT_MESSAGE
@@ -77,7 +91,24 @@ class MessageAdapter(options: FirestoreRecyclerOptions<Message>) :
         val outgoingMsgTextView: TextView = view.findViewById(R.id.outgoing_msg_txt)
     }
 
-    inner class OtherMessageViewHolder(val view: View) : MessageViewHolder<Message>(view) {
+    inner class OtherMessageViewHolder(val view: View) : MessageViewHolder<Message>(view),
+        View.OnClickListener {
         val incomingMsgTextView: TextView = view.findViewById(R.id.incoming_msg_txt)
+
+        init {
+            view.setOnClickListener(this)
+        }
+
+        override fun onClick(v: View?) {
+            Log.e("others message", "clicked!")
+            val position: Int = adapterPosition
+            if (position != RecyclerView.NO_POSITION) {
+                listener.onMessageClick(position,getItem(position))
+            }
+        }
+    }
+
+    interface OnItemClickListener {
+        fun onMessageClick(position: Int, item: Message)
     }
 }
