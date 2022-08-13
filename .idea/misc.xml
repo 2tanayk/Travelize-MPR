@@ -3,6 +3,7 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/tanay/AndroidStudioProjects/Travelize/app/src/main/res/drawable/ic_logout.xml" value="0.162" />
         <entry key="..\:/Users/tanay/AndroidStudioProjects/Travelize/app/src/main/res/layout/activity_main.xml" value="0.16354166666666667" />
         <entry key="..\:/Users/tanay/AndroidStudioProjects/Travelize/app/src/main/res/layout/activity_main_host.xml" value="0.12318840579710146" />
         <entry key="..\:/Users/tanay/AndroidStudioProjects/Travelize/app/src/main/res/layout/activity_main_host2.xml" value="0.16354166666666667" />
@@ -11,7 +12,8 @@
         <entry key="..\:/Users/tanay/AndroidStudioProjects/Travelize/app/src/main/res/layout/fragment_chat_host.xml" value="0.16354166666666667" />
         <entry key="..\:/Users/tanay/AndroidStudioProjects/Travelize/app/src/main/res/layout/fragment_create_profile1.xml" value="0.12318840579710146" />
         <entry key="..\:/Users/tanay/AndroidStudioProjects/Travelize/app/src/main/res/layout/fragment_create_profile2.xml" value="0.12318840579710146" />
-        <entry key="..\:/Users/tanay/AndroidStudioProjects/Travelize/app/src/main/res/layout/fragment_profile.xml" value="0.16354166666666667" />
+        <entry key="..\:/Users/tanay/AndroidStudioProjects/Travelize/app/src/main/res/layout/fragment_create_profile3.xml" value="0.12318840579710146" />
+        <entry key="..\:/Users/tanay/AndroidStudioProjects/Travelize/app/src/main/res/layout/fragment_profile.xml" value="0.22" />
         <entry key="..\:/Users/tanay/AndroidStudioProjects/Travelize/app/src/main/res/layout/fragment_register.xml" value="0.16354166666666667" />
         <entry key="..\:/Users/tanay/AndroidStudioProjects/Travelize/app/src/main/res/layout/my_chat_item.xml" value="0.16354166666666667" />
         <entry key="..\:/Users/tanay/AndroidStudioProjects/Travelize/app/src/main/res/layout/other_chat_item.xml" value="0.16354166666666667" />
