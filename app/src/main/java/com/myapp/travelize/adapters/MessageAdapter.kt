@@ -8,8 +8,10 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter
 import com.firebase.ui.firestore.FirestoreRecyclerOptions
 import com.google.firebase.auth.FirebaseAuth
@@ -27,9 +29,12 @@ class MessageAdapter(
 ) :
     FirestoreRecyclerAdapter<Message, MessageViewHolder<*>>(options) {
     companion object {
+        const val TEXT_MESSAGE = 0
         const val TYPE_MY_TEXT_MESSAGE = 0
         const val TYPE_OTHERS_TEXT_MESSAGE = 1
-        const val TEXT_MESSAGE = 0
+        const val IMG_MESSAGE = 1
+        const val TYPE_MY_IMG_MESSAGE = 2
+        const val TYPE_OTHERS_IMG_MESSAGE = 3
     }
 
     val currentUid = FirebaseAuth.getInstance().currentUser.uid
@@ -50,6 +55,16 @@ class MessageAdapter(
                 val view = LayoutInflater.from(parent.context)
                     .inflate(R.layout.other_chat_item, parent, false)
                 OtherMessageViewHolder(view)
+            }
+            TYPE_MY_IMG_MESSAGE -> {
+                val view = LayoutInflater.from(parent.context)
+                    .inflate(R.layout.my_image_item, parent, false)
+                MyImageMessageViewHolder(view)
+            }
+            TYPE_OTHERS_IMG_MESSAGE -> {
+                val view = LayoutInflater.from(parent.context)
+                    .inflate(R.layout.other_image_item, parent, false)
+                OtherImageMessageViewHolder(view)
             }
             else -> throw IllegalArgumentException("Invalid view type")
         }
@@ -76,6 +91,28 @@ class MessageAdapter(
                 holder.incomingMsgTextView.append(model.msg + "\n")
                 holder.incomingMsgTextView.append(styledMsgTimestamp)
             }
+            is MyImageMessageViewHolder -> {
+                Glide.with(holder.outgoingImgMsgTextView.context)
+                    .load(model.msg)
+                    .placeholder(R.drawable.blankplaceholder)
+                    .error(R.drawable.brokenplaceholder)
+                    .fallback(R.drawable.brokenplaceholder)
+                    .into(holder.outgoingImgMsgTextView)
+
+                holder.timeStampTxt.text = styledMsgTimestamp
+            }
+            is OtherImageMessageViewHolder -> {
+                holder.senderIdTxt.text = model.senderName
+
+                Glide.with(holder.incomingImgMsgTextView.context)
+                    .load(model.msg)
+                    .placeholder(R.drawable.blankplaceholder)
+                    .error(R.drawable.brokenplaceholder)
+                    .fallback(R.drawable.brokenplaceholder)
+                    .into(holder.incomingImgMsgTextView)
+
+                holder.timeStampTxt.text = styledMsgTimestamp
+            }
             else -> throw IllegalArgumentException()
         }
     }
@@ -83,8 +120,12 @@ class MessageAdapter(
     override fun getItemViewType(position: Int): Int {
         if (currentUid == snapshots[position].senderUid && snapshots[position].msgType == TEXT_MESSAGE) {
             return TYPE_MY_TEXT_MESSAGE
+        } else if (currentUid != snapshots[position].senderUid && snapshots[position].msgType == TEXT_MESSAGE) {
+            return TYPE_OTHERS_TEXT_MESSAGE
+        } else if (currentUid == snapshots[position].senderUid && snapshots[position].msgType == IMG_MESSAGE) {
+            return TYPE_MY_IMG_MESSAGE
         }
-        return TYPE_OTHERS_TEXT_MESSAGE
+        return TYPE_OTHERS_IMG_MESSAGE
     }
 
     inner class MyMessageViewHolder(val view: View) : MessageViewHolder<Message>(view) {
@@ -103,9 +144,20 @@ class MessageAdapter(
             Log.e("others message", "clicked!")
             val position: Int = adapterPosition
             if (position != RecyclerView.NO_POSITION) {
-                listener.onMessageClick(position,getItem(position))
+                listener.onMessageClick(position, getItem(position))
             }
         }
+    }
+
+    inner class MyImageMessageViewHolder(val view: View) : MessageViewHolder<Message>(view) {
+        val outgoingImgMsgTextView: ImageView = view.findViewById(R.id.outgoing_img)
+        val timeStampTxt: TextView = view.findViewById(R.id.outgoing_time_stamp_txt)
+    }
+
+    inner class OtherImageMessageViewHolder(val view: View) : MessageViewHolder<Message>(view) {
+        val senderIdTxt: TextView = view.findViewById(R.id.incoming_sender_id_txt)
+        val incomingImgMsgTextView: ImageView = view.findViewById(R.id.incoming_img)
+        val timeStampTxt: TextView = view.findViewById(R.id.incoming_time_stamp_txt)
     }
 
     interface OnItemClickListener {

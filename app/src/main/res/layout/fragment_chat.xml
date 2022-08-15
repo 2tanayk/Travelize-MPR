@@ -79,7 +79,8 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/click_pic_img_view"
                 app:shapeAppearanceOverlay="@style/roundedImageViewRounded"
-                app:srcCompat="@drawable/ic_send" />
+                app:srcCompat="@drawable/ic_send"
+                tools:visibility="gone" />
 
             <ImageView
                 android:id="@+id/attachment_img_view"
@@ -93,7 +94,8 @@
                 android:visibility="visible"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:srcCompat="@drawable/ic_attachment" />
+                app:srcCompat="@drawable/ic_attachment"
+                tools:visibility="visible" />
 
             <ImageView
                 android:id="@+id/click_pic_img_view"

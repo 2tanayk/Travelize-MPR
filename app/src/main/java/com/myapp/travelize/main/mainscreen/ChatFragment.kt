@@ -1,7 +1,11 @@
 package com.myapp.travelize.main.mainscreen
 
+import android.Manifest
+import android.content.ActivityNotFoundException
 import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
+import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -14,6 +18,9 @@ import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.ProgressBar
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
@@ -21,8 +28,10 @@ import com.firebase.ui.firestore.FirestoreRecyclerOptions
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.storage.FirebaseStorage
 import com.myapp.travelize.R
 import com.myapp.travelize.adapters.MessageAdapter
+import com.myapp.travelize.adapters.MessageAdapter.Companion.IMG_MESSAGE
 import com.myapp.travelize.adapters.MessageAdapter.Companion.TEXT_MESSAGE
 import com.myapp.travelize.authentication.MainActivity.Companion.FIRESTORE_SHARED_PREF
 import com.myapp.travelize.authentication.MainActivity.Companion.USER_NAME
@@ -30,6 +39,7 @@ import com.myapp.travelize.main.MainHostActivity2.Companion.CHAT_DOC_REF
 import com.myapp.travelize.main.MainHostActivity2.Companion.CHAT_GROUP_KEY
 import com.myapp.travelize.main.ProfileDialogFragment
 import com.myapp.travelize.models.Message
+import java.io.File
 
 
 class ChatFragment : Fragment(), MessageAdapter.OnItemClickListener {
@@ -48,6 +58,32 @@ class ChatFragment : Fragment(), MessageAdapter.OnItemClickListener {
     lateinit var sharedPref: SharedPreferences
     lateinit var msgCollectionRef: CollectionReference
     lateinit var msgsProgressBar: ProgressBar
+    lateinit var tempFile: File
+    lateinit var tempUri: Uri
+    lateinit var sentImageUrl: String
+    val storage: FirebaseStorage = FirebaseStorage.getInstance()
+    val storageRef = storage.reference
+
+
+    val requestPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+            if (isGranted) {
+                Log.e("Permission", "Granted")
+            } else {
+                Log.e("Permission", "Denied")
+            }
+        }
+
+    val getCapturedImage =
+        registerForActivityResult(ActivityResultContracts.TakePicture()) {
+            if (it) {
+                Log.e("callback", "image uri saved! " + tempUri.toString())
+                saveImageToStorage()
+            } else {
+                Log.e("callback", "failed!")
+            }
+        }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
     }
@@ -94,6 +130,16 @@ class ChatFragment : Fragment(), MessageAdapter.OnItemClickListener {
             }
         })
 
+        clickIconImgView.setOnClickListener {
+            Log.e("ImageIcon", "clicked!")
+            if (!hasCameraPermission()) {
+                requestPermissionLauncher.launch(Manifest.permission.CAMERA)
+            }
+            if (hasCameraPermission()) {
+                captureImageForChat()
+            }
+        }
+
         val bundle = arguments
         if (bundle != null) {
             Log.e("chat", "${bundle.getInt(CHAT_GROUP_KEY, -1)}")
@@ -109,6 +155,77 @@ class ChatFragment : Fragment(), MessageAdapter.OnItemClickListener {
             }
         } else {
             Log.e("bundle", "is null")
+        }
+    }
+
+    private fun saveImageToStorage() {
+        val storageRef = storageRef.child(firebaseAuth.currentUser.uid + "/images/")
+            .child("${System.currentTimeMillis()}.png")
+
+        storageRef.putFile(tempUri).addOnSuccessListener {
+            Log.e("Image", "uploaded successfully")
+
+            storageRef.downloadUrl.addOnCompleteListener {
+                if (it.isSuccessful) {
+                    sentImageUrl = it.result.toString()
+                    sendUserImageMessage(sentImageUrl)
+                } else {
+                    Log.e("download url", "fetch failed :(")
+                }
+            }
+        }
+    }
+
+    private fun captureImageForChat() {
+        tempFile = File(requireActivity().filesDir, "${System.currentTimeMillis()}.png")
+        tempUri =
+            FileProvider.getUriForFile(requireActivity(), "com.myapp.travelize", tempFile)
+        try {
+            getCapturedImage.launch(tempUri)
+        } catch (e: ActivityNotFoundException) {
+            // display error state to the user
+            e.printStackTrace()
+        }
+    }
+
+    private fun sendUserImageMessage(sentImageUrl: String) {
+        val userUid = firebaseAuth.getCurrentUser().getUid()
+        val msgType = IMG_MESSAGE
+        var userName = sharedPref.getString(USER_NAME, null)
+        var message: Message
+
+        if (userName == null) {
+            userDocRef.get().addOnSuccessListener {
+                userName = it.getString("name")
+                message = Message(userName!!, userUid, sentImageUrl, msgType)
+
+                msgCollectionRef.add(message).addOnCompleteListener {
+                    if (it.isSuccessful) {
+                        Log.e("Image", "sent!")
+                        scrollToLastMsg()
+                    } else {
+                        Log.e("Message", "failed to deliver :(")
+                    }
+                }//addOnCompleteListener ends
+                //caching the user's name
+                val editor = sharedPref.edit()
+                editor.putString(USER_NAME, userName)
+                editor.apply()
+            }.addOnFailureListener {
+                Log.e("name fetch", it.toString())
+                it.printStackTrace()
+            }//addOnFailureListener
+        } else {
+            message = Message(userName!!, userUid, sentImageUrl, msgType)
+
+            msgCollectionRef.add(message).addOnCompleteListener {
+                if (it.isSuccessful) {
+                    Log.e("Image", "sent!")
+                    scrollToLastMsg()
+                } else {
+                    Log.e("Message", "failed to deliver :(")
+                }//inner else ends
+            }//addOnCompleteListener ends
         }
     }
 
@@ -205,4 +322,10 @@ class ChatFragment : Fragment(), MessageAdapter.OnItemClickListener {
         }
 
     }
+
+    fun hasCameraPermission() =
+        ContextCompat.checkSelfPermission(
+            requireActivity(),
+            Manifest.permission.CAMERA
+        ) == PackageManager.PERMISSION_GRANTED
 }
